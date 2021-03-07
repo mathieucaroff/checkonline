@@ -1,5 +1,6 @@
 import { interval, Subscription } from 'rxjs'
 import { DEBUG, getConfig } from './config'
+import { pingTest } from './corelib/connection'
 import { initPage } from './page/init'
 import { OnlineConfig } from './type/onlineConfig'
 import { divmod } from './util/divmod'
@@ -25,17 +26,26 @@ export let main = async () => {
       let s = config.headSquareSize
       let d = config.drawSpeed
       let { x, y } = getHeadLocation(now + d * tick)
-      ctx.fillStyle = '#909090'
-      ctx.fillRect(x, y, d, 1)
       ctx.fillStyle = '#707070'
+      ctx.fillRect(x, y, d, 1)
       ctx.fillRect(x + 1 - s, y + 1, s, s)
       erease = () => {
          ctx.fillStyle = '#101010'
          ctx.fillRect(x - s, y + 1, s + 2, s)
       }
-      if (config.debug || x % 480 === config.headSquareSize + 12) {
+      if (config.debug || x % 480 === config.headSquareSize + 13) {
          drawTimeRuler()
       }
+
+      pingTest(config.targetList.split('=='))
+         .then(() => {
+            ctx.fillStyle = '#404040'
+            ctx.fillRect(x, y, d, 1)
+         })
+         .catch(() => {
+            ctx.fillStyle = '#F0F0F0'
+            ctx.fillRect(x, y, d, 1)
+         })
    }
 
    const wipe = () => {
@@ -95,9 +105,9 @@ export let main = async () => {
    window.addEventListener('beforeunload', () => {
       erease()
       localStorage.setItem('image', canvas.toDataURL('image/png'))
-      console.log('lsimg', localStorage.getItem('image'))
    })
 
+   // Rulers and indications
    getDrawText().then((drawer) => {
       drawTimeRuler = () => {
          Array.from({ length: 2 }, (_, k2) => {
