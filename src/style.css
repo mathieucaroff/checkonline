@@ -1,0 +1,39 @@
+/**
+ * Mini css-reset
+ */
+*,
+*:before,
+*:after {
+   border-collapse: collapse;
+   border-spacing: 0;
+   border: 0;
+   box-sizing: border-box;
+   font-size: 100%;
+   font-weight: normal;
+   height: auto;
+   list-style: none;
+   margin: 0;
+   /* max-width: 100%; */
+   padding: 0;
+   text-align: left;
+}
+
+html {
+   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+h1 {
+   font-family: SquareFont, 'Courier New', Courier, monospace;
+   font-size: 260%;
+}
+
+body {
+   /* https://developer.mozilla.org/en-US/docs/Web/CSS/overscroll-behavior */
+   overscroll-behavior: none;
+}
+
+.inline {
+   display: inline
+}
+
+@import "./font.css"

@@ -1,0 +1,5 @@
+@font-face {
+   font-family: "SquareFont";
+   src: url("../asset/typeface/Square.ttf") format("truetype"),
+        url("../asset/typeface/Squareo.ttf") format("truetype");
+}

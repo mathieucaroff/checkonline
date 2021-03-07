@@ -1,0 +1,23 @@
+{
+   "name": "online",
+   "description": "",
+   "repository": "https://github.com/mathieucaroff/online",
+   "license": "ISC",
+   "version": "1.0.0",
+   "scripts": {
+      "build": "parcel build src/page.html -d public -o index.html",
+      "start": "parcel start src/page.html"
+   },
+   "devDependencies": {
+      "@types/node": "^13.9.1",
+      "@types/seedrandom": "^2.4.28",
+      "parcel": "^1.12.4",
+      "prettier": "^1.19.1",
+      "ts-node": "^8.6.2",
+      "typescript": "^3.8.3"
+   },
+   "dependencies": {
+      "rxjs": "^7.0.0-beta.0",
+      "seedrandom": "^3.0.5"
+   }
+}
