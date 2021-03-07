@@ -2,7 +2,6 @@
  * Test whether internet is available by loading an image
  */
 
-import { time } from 'console'
 import { loadImage } from '../util/loadImage'
 
 export let pingTest = (imageUrlList: string[], timeout = 10 * 1000) => {
@@ -15,7 +14,7 @@ export let pingTest = (imageUrlList: string[], timeout = 10 * 1000) => {
       }
 
       imageUrlList.forEach((imageUrl) => {
-         loadImage(imageUrl + '?time=' + startTime).then(handle)
+         loadImage(imageUrl + '?t=' + (startTime % (86400 * 100))).then(handle)
       })
 
       let errorTimeoutId = setTimeout(() => {

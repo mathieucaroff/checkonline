@@ -22,6 +22,9 @@ export let urlRemoveParam = (location: Location, param: string) => {
    let newHref = location.href.replace(new RegExp(`#${param}(=[^#]*)?`), '')
 
    if (location.href !== newHref) {
+      if (!newHref.includes('#')) {
+         newHref += '#'
+      }
       location.href = newHref
    }
 }

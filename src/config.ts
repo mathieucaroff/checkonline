@@ -1,4 +1,5 @@
 import { OnlineConfig } from './type/onlineConfig'
+import { parseTimeToMs } from './util/parseTimeToMs'
 import { getUrlParam, spacelessUrl, urlRemoveParam } from './util/urlParam'
 
 export let getConfig = (location: Location) => {
@@ -8,37 +9,27 @@ export let getConfig = (location: Location) => {
       clear: () => false,
       debug: () => false,
       fast: () => false,
-      fill: () => false,
-      headSquareSize: () => 6,
-      period: () => '1s',
       height: () => 720,
       width: () => 1920,
-      speed: ({ fast, fill }) => {
-         if (fast()) {
-            return 8 * 4
-         }
-         if (fill()) {
-            return 3840
-         }
-         return 1
+      drawSpeed: ({ period }) => {
+         let p = parseTimeToMs(period())
+         return (8 * p) / 1000
       },
-      drawSpeed: ({ fast, speed }) => {
+      period: ({ fast }) => {
          if (fast()) {
-            return 8
-         }
-         let ds = speed()
-         while (ds > 480) ds /= 2
-         return ds
-      },
-      tickSpeed: ({ speed, drawSpeed }) => {
-         if (speed() > drawSpeed()) {
-            return speed() / drawSpeed()
+            return '125ms'
          } else {
-            return 1
+            return '1000ms'
          }
       },
-      targetList: () =>
-         'http://www.google.com/images/google_favicon_128.png==http://www.bing.com/s/a/bing_p.ico',
+      targetCount: () => 2,
+      targetList: ({ targetCount }) => {
+         let targetArray = [
+            'https://www.bing.com/s/a/bing_p.ico',
+            'http://www.google.com/favicon.ico',
+         ]
+         return targetArray.slice(0, targetCount()).join('==')
+      },
    })
 
    console.info('config', config)

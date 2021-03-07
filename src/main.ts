@@ -1,5 +1,5 @@
 import { interval, Subscription } from 'rxjs'
-import { DEBUG, getConfig } from './config'
+import { getConfig } from './config'
 import { pingTest } from './corelib/connection'
 import { initPage } from './page/init'
 import { OnlineConfig } from './type/onlineConfig'
@@ -8,6 +8,8 @@ import { getDrawText } from './util/drawText'
 import { getContext2d } from './util/getContext'
 import { loadImage } from './util/loadImage'
 import { mod } from './util/mod'
+import { parseTimeToMs } from './util/parseTimeToMs'
+import { urlRemoveParam } from './util/urlParam'
 
 let getHeadLocation = (p: number) => {
    let [a, esx] = divmod(p, 8 * 60) // eigth of seconds ~ x coordinate
@@ -20,20 +22,12 @@ let getHeadLocation = (p: number) => {
 export let main = async () => {
    // clockUpdate
    let drawTimeRuler = () => {}
-   let erease = () => {}
-   const update = (tick: number) => {
-      erease()
-      let s = config.headSquareSize
+   const update = (k) => {
+      let { x, y } = getHeadLocation(now + k * config.drawSpeed)
       let d = config.drawSpeed
-      let { x, y } = getHeadLocation(now + d * tick)
       ctx.fillStyle = '#707070'
       ctx.fillRect(x, y, d, 1)
-      ctx.fillRect(x + 1 - s, y + 1, s, s)
-      erease = () => {
-         ctx.fillStyle = '#101010'
-         ctx.fillRect(x - s, y + 1, s + 2, s)
-      }
-      if (config.debug || x % 480 === config.headSquareSize + 13) {
+      if (config.debug || x % 480 <= 2 * d) {
          drawTimeRuler()
       }
 
@@ -53,6 +47,11 @@ export let main = async () => {
       ctx.fillRect(0, 0, canvas.width, canvas.height)
    }
 
+   const setUpdateInterval = () => {
+      clockSub.unsubscribe()
+      clockSub = interval(parseTimeToMs(config.period)).subscribe(update)
+   }
+
    // Initialize the configuration and make it auto-update the state
 
    let config: OnlineConfig
@@ -63,14 +62,14 @@ export let main = async () => {
       if (config.clear) {
          localStorage.removeItem('image')
          wipe()
-         location.href = location.href.replace('#clear', '')
+         drawTimeRuler()
+         urlRemoveParam(location, 'clear')
       }
 
-      now -= mod(now, config.drawSpeed) // align
-      if (config.tickSpeed !== lastConfig.tickSpeed) {
+      now = getNow()
+      if (config.period !== lastConfig.period) {
          // (Re)-Start ticking
-         clockSub.unsubscribe()
-         clockSub = interval(125 / config.tickSpeed).subscribe(update)
+         setUpdateInterval()
       }
    }
 
@@ -82,7 +81,12 @@ export let main = async () => {
 
    config = getConfig(location)
 
-   let now = ~~mod((Date.now() * 8) / 1000, 2 * 24 * 60 * 60 * 8)
+   const getNow = () => {
+      let now8 = ~~mod((Date.now() * 8) / 1000, 2 * 24 * 60 * 60 * 8)
+      let nowAligned = now8 - mod(now8, config.drawSpeed)
+      return nowAligned
+   }
+   let now = getNow()
 
    console.log('now', now, 'es;', now / 8, 's')
 
@@ -103,7 +107,6 @@ export let main = async () => {
    }
 
    window.addEventListener('beforeunload', () => {
-      erease()
       localStorage.setItem('image', canvas.toDataURL('image/png'))
    })
 
@@ -118,8 +121,8 @@ export let main = async () => {
                })
                if (k24 % 2 === 0) {
                   ctx.fillStyle = '#C0C0C0'
-                  Array.from({ length: 4 * (480 / 4) }, (_, k60) => {
-                     ctx.fillRect(k60 * 4, y, 1, 1)
+                  Array.from({ length: 4 * (480 / 8) }, (_, k60) => {
+                     ctx.fillRect(k60 * 8, y, 1, 1)
                   })
                }
             })
