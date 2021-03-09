@@ -19,7 +19,7 @@ export let spacelessUrl = (location: Location) => {
 }
 
 export let urlRemoveParam = (location: Location, param: string) => {
-   let newHref = location.href.replace(new RegExp(`#${param}(=[^#]*)?`), '')
+   let newHref = location.href.replace(new RegExp(`#${param}(=[^#]*|$|(#))`, 'g'), '$1')
 
    if (location.href !== newHref) {
       if (!newHref.includes('#')) {
