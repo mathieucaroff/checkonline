@@ -6,15 +6,14 @@ export let getConfig = (location: Location) => {
    spacelessUrl(location)
 
    let config = getUrlParam<OnlineConfig>(location, {
-      clear: () => false,
+      // programmer
       debug: () => false,
-      fast: () => false,
+      // canvas action
+      clear: () => false,
       height: () => 720,
       width: () => 1920,
-      drawSpeed: ({ period }) => {
-         let p = parseTimeToMs(period())
-         return (8 * p) / 1000
-      },
+      // clock
+      fast: () => false,
       period: ({ fast }) => {
          if (fast()) {
             return '125ms'
@@ -22,6 +21,7 @@ export let getConfig = (location: Location) => {
             return '1000ms'
          }
       },
+      // connection
       targetCount: () => 2,
       targetList: ({ targetCount }) => {
          let targetArray = [
@@ -37,10 +37,6 @@ export let getConfig = (location: Location) => {
    if (config.fast) {
       urlRemoveParam(location, 'speed')
       urlRemoveParam(location, 'fill')
-   }
-   if (config.fill) {
-      urlRemoveParam(location, 'speed')
-      urlRemoveParam(location, 'fast')
    }
 
    return config

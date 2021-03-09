@@ -5,7 +5,6 @@ export interface OnlineConfig {
    fast: boolean
    width: number
    height: number
-   drawSpeed: number
    targetList: string
    targetCount: number
 }

@@ -34,15 +34,7 @@ export let initPage = (prop: InitProp) => {
       corner,
    )
 
-   let screenSize = createNoisyStateWithObservable(fromEvent(window, 'resize'))(
-      (): Pair => ({
-         y: window.innerHeight,
-         x: window.innerWidth,
-      }),
-   )
-
    return {
       canvas,
-      screenSize,
    }
 }
