@@ -22,8 +22,8 @@ export let colorObject = {
       'ruler=#ccc',
       'textbg=#ccc',
       'open=#DD2',
-      'success=#4f4',
-      'failure=#f44',
+      'success=#5c5',
+      'failure=#e55',
    ].join('=='),
    dark: [
       'disconnected=#fff',

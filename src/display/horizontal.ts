@@ -5,11 +5,11 @@ import { OnlineConfig } from '../type/onlineConfig'
 import { parseTimeToMs } from '../util/parseTimeToMs'
 
 let getHeadLocation = (p: number) => {
-   let [a, esx] = divmod(p, 8 * 60) // eigth of seconds ~ x coordinate
-   let [b, my] = divmod(a, 15) // minutes ~ y coordinate
-   let [c, qh] = divmod(b, 4) // quarter hours (x coordinate)
-   let [d, h] = divmod(c, 48) // hours (y coordinate)
-   return { x: 8 * 60 * qh + esx, y: 15 * h + my }
+   let [u, es] = divmod(p, 8 * 60 * 2) // eigth of seconds ~ x coordinate
+   let [v, hm] = divmod(u, 30) // half-minutes ~ y coordinate
+   let [w, h] = divmod(v, 24) // hours (y coordinate)
+   let [z, d] = divmod(w, 2) // day (x coordinate too)
+   return { x: 8 * 60 * 2 * d + es, y: 30 * h + hm }
 }
 
 interface DisplayProp {
@@ -17,7 +17,7 @@ interface DisplayProp {
    getConfig: () => OnlineConfig
 }
 
-export let createConvolutedDisplay = ({ canvas, getConfig }: DisplayProp) => {
+export let createHorizontalDisplay = ({ canvas, getConfig }: DisplayProp) => {
    let { ctx } = getContext2d(canvas)
 
    const wipe = () => {
@@ -33,6 +33,7 @@ export let createConvolutedDisplay = ({ canvas, getConfig }: DisplayProp) => {
    const open = (targetTime: number) => {
       let d = (8 * parseTimeToMs(getConfig().period)) / 1000
       let { x, y } = getHeadLocation((8 * targetTime) / 1000)
+      console.log({ x, y })
       let theme = getConfig().themeObject
       ctx.fillStyle = theme.open
       ctx.fillRect(x, y, d, 1)
@@ -56,26 +57,19 @@ export let createConvolutedDisplay = ({ canvas, getConfig }: DisplayProp) => {
    // Rulers and indications
    getDrawText().then((drawer) => {
       drawTimeIndicator = () => {
-         Array.from({ length: 2 }, (_, k2) => {
-            Array.from({ length: 24 }, (_, k24) => {
-               // hour labels
-               let y = 15 * (k24 + 24 * k2)
-               Array.from({ length: 4 }, (_, k4) => {
-                  drawer.drawText(
-                     ctx,
-                     { y: y + 1, x: k4 * 480 },
-                     ` ${k24}`.slice(-2),
-                     getConfig().themeObject.textbg,
-                  )
-               })
+         let bg = getConfig().themeObject.textbg
 
-               // dots
-               ctx.fillStyle = getConfig().themeObject.ruler
-               if (k24 % 2 === 0) {
-                  Array.from({ length: 4 * (480 / 8) }, (_, k60) => {
-                     ctx.fillRect(k60 * 8, y, 1, 1)
-                  })
-               }
+         Array.from({ length: 24 }, (_, k24) => {
+            // hour labels
+            let y = 30 * k24
+            Array.from({ length: 2 }, (_, k2) => {
+               drawer.drawText(ctx, { y, x: k2 * 960 }, ` ${k24}`.slice(-2), bg)
+            })
+
+            // dots
+            ctx.fillStyle = getConfig().themeObject.ruler
+            Array.from({ length: 1920 / 8 }, (_, k240) => {
+               ctx.fillRect(k240 * 8, y, 1, 1)
             })
          })
       }

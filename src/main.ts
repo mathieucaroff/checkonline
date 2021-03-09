@@ -2,7 +2,7 @@ import { Subscription } from 'rxjs'
 import { createObservableClock } from './clock/clock'
 import { parseConfig } from './config'
 import { pingTest } from './connection/connection'
-import { createConvolutedDisplay } from './display/convoluted'
+import { createHorizontalDisplay } from './display/horizontal'
 import { initPage } from './page/init'
 import { createPage } from './page/page'
 import { OnlineConfig } from './type/onlineConfig'
@@ -14,7 +14,7 @@ export let main = async () => {
    const setUpdateInterval = () => {
       clockSub.unsubscribe()
       clockSub = createObservableClock(parseTimeToMs(config.period)).subscribe((targetTime) => {
-         let closer = display.update(targetTime)
+         let closer = display.open(targetTime)
 
          pingTest(config.targetList.split('=='), config.timeout)
             .then(() => {
@@ -57,7 +57,7 @@ export let main = async () => {
    let { canvas } = initPage({ config, document, location, window })
    let page = createPage({ document, getConfig: () => config })
 
-   let display = createConvolutedDisplay({ canvas, getConfig: () => config })
+   let display = createHorizontalDisplay({ canvas, getConfig: () => config })
 
    runConfig(config, {} as any)
    window.addEventListener('hashchange', updateConfig)
