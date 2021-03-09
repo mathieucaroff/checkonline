@@ -34,6 +34,12 @@ export let getUrlParam = <T>(location: Location, defaultConfig: DefaultConfigObj
 
    // get and split the parameter string
    let pieceList = location.hash.split('#').slice(1)
+   for (let k = pieceList.length - 1; k >= 0; k--) {
+      if (pieceList[k] === '') {
+         pieceList[k - 1] = `${pieceList[k - 1]}#${pieceList[k + 1]}`
+         pieceList.splice(k, 2)
+      }
+   }
 
    // process the parameter string into the config object to get the user-defined config
    pieceList.forEach((piece) => {
