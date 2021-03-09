@@ -18,7 +18,7 @@ export let getConfig = (location: Location) => {
          if (fast()) {
             return '125ms'
          } else {
-            return '1000ms'
+            return '500ms'
          }
       },
       // connection
@@ -26,7 +26,7 @@ export let getConfig = (location: Location) => {
       targetList: ({ targetCount }) => {
          let targetArray = [
             'https://www.bing.com/s/a/bing_p.ico',
-            'http://www.google.com/favicon.ico',
+            'https://www.google.com/favicon.ico',
          ]
          return targetArray.slice(0, targetCount()).join('==')
       },
