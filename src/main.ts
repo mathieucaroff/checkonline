@@ -1,8 +1,10 @@
 import { Subscription } from 'rxjs'
 import { createObservableClock } from './clock/clock'
 import { getConfig } from './config'
+import { pingTest } from './connection/connection'
 import { createConvolutedDisplay } from './display/display'
 import { initPage } from './page/init'
+import { createPage } from './page/page'
 import { OnlineConfig } from './type/onlineConfig'
 import { loadImage } from './util/loadImage'
 import { parseTimeToMs } from './util/parseTimeToMs'
@@ -11,7 +13,19 @@ import { urlRemoveParam } from './util/urlParam'
 export let main = async () => {
    const setUpdateInterval = () => {
       clockSub.unsubscribe()
-      clockSub = createObservableClock(parseTimeToMs(config.period)).subscribe(display.update)
+      clockSub = createObservableClock(parseTimeToMs(config.period)).subscribe((targetTime) => {
+         let closer = display.update(targetTime)
+
+         pingTest(config.targetList.split('=='), config.timeout)
+            .then(() => {
+               page.markConnected()
+               closer.closeSuccess()
+            })
+            .catch(() => {
+               page.markOffline()
+               closer.closeError()
+            })
+      })
    }
 
    // Initialize the configuration and make it auto-update the state
@@ -41,6 +55,7 @@ export let main = async () => {
 
    // Initialize the page
    let { canvas } = initPage({ config, document, location, window })
+   let page = createPage({ config, document })
 
    let display = createConvolutedDisplay({ canvas, getConfig: () => config })
 
@@ -51,6 +66,8 @@ export let main = async () => {
    let imageDataUrl = localStorage.getItem('image')
    if (imageDataUrl) {
       display.restore(await loadImage(imageDataUrl))
+   } else {
+      display.wipe() // make the canvas non-transparent and grey
    }
 
    window.addEventListener('beforeunload', () => {

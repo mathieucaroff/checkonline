@@ -4,10 +4,10 @@
 
 import { loadImage } from '../util/loadImage'
 
-export let pingTest = (imageUrlList: string[], timeout = 10 * 1000) => {
+export let pingTest = (imageUrlList: string[], timeout) => {
    let startTime = new Date().getTime()
 
-   return new Promise((resolve, reject) => {
+   return new Promise<number>((resolve, reject) => {
       let handle = () => {
          clearTimeout(errorTimeoutId)
          resolve(new Date().getTime() - startTime)

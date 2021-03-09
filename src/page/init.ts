@@ -1,9 +1,6 @@
-import { config, fromEvent } from 'rxjs'
 import { repository } from '../../package.json'
 import { githubCornerHTML } from '../lib/githubCorner'
-import { Pair } from '../type/pair'
 import { OnlineConfig } from '../type/onlineConfig'
-import { createNoisyStateWithObservable } from '../util/noisyState'
 import { h } from '../lib/hyper'
 
 interface InitProp {

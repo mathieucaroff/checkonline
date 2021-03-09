@@ -1,5 +1,4 @@
 import { getContext2d } from '../util/getContext'
-import { pingTest } from '../connection/connection'
 import { divmod } from '../util/divmod'
 import { getDrawText } from '../util/drawText'
 import { OnlineConfig } from '../type/onlineConfig'
@@ -31,7 +30,7 @@ export let createConvolutedDisplay = ({ canvas, getConfig }: DisplayProp) => {
    }
 
    // clockUpdate
-   const update = (targetTime: number) => {
+   const open = (targetTime: number) => {
       let config = getConfig()
       let d = (8 * parseTimeToMs(config.period)) / 1000
       let { x, y } = getHeadLocation((8 * targetTime) / 1000)
@@ -41,15 +40,16 @@ export let createConvolutedDisplay = ({ canvas, getConfig }: DisplayProp) => {
          drawTimeRuler()
       }
 
-      pingTest(config.targetList.split('=='))
-         .then(() => {
+      return {
+         closeSuccess: () => {
             ctx.fillStyle = '#404040'
             ctx.fillRect(x, y, d, 1)
-         })
-         .catch(() => {
+         },
+         closeError: () => {
             ctx.fillStyle = '#F0F0F0'
             ctx.fillRect(x, y, d, 1)
-         })
+         },
+      }
    }
 
    let drawTimeRuler = () => {}
@@ -76,7 +76,7 @@ export let createConvolutedDisplay = ({ canvas, getConfig }: DisplayProp) => {
    })
 
    return {
-      update,
+      update: open,
       wipe,
       restore,
       drawTimeRuler: () => {

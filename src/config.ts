@@ -8,7 +8,7 @@ export let getConfig = (location: Location) => {
    let config = getUrlParam<OnlineConfig>(location, {
       // programmer
       debug: () => false,
-      // canvas action
+      // canvas
       clear: () => false,
       height: () => 720,
       width: () => 1920,
@@ -22,6 +22,7 @@ export let getConfig = (location: Location) => {
          }
       },
       // connection
+      timeout: () => 500,
       targetCount: () => 2,
       targetList: ({ targetCount }) => {
          let targetArray = [
@@ -30,6 +31,11 @@ export let getConfig = (location: Location) => {
          ]
          return targetArray.slice(0, targetCount()).join('==')
       },
+      // page
+      connectedColor: () => '#000',
+      connectedTitle: () => 'Online',
+      disconnectedColor: () => '#FFF',
+      disconnectedTitle: () => 'DISCONNECTED',
    })
 
    console.info('config', config)
