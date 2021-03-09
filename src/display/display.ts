@@ -3,6 +3,7 @@ import { divmod } from '../util/divmod'
 import { getDrawText } from '../util/drawText'
 import { OnlineConfig } from '../type/onlineConfig'
 import { parseTimeToMs } from '../util/parseTimeToMs'
+import { parseTheme } from '../theme/theme'
 
 let getHeadLocation = (p: number) => {
    let [a, esx] = divmod(p, 8 * 60) // eigth of seconds ~ x coordinate
@@ -21,7 +22,7 @@ export let createConvolutedDisplay = ({ canvas, getConfig }: DisplayProp) => {
    let { ctx } = getContext2d(canvas)
 
    const wipe = () => {
-      ctx.fillStyle = '#101010'
+      ctx.fillStyle = getConfig().themeObject.background
       ctx.fillRect(0, 0, canvas.width, canvas.height)
    }
 
@@ -31,39 +32,47 @@ export let createConvolutedDisplay = ({ canvas, getConfig }: DisplayProp) => {
 
    // clockUpdate
    const open = (targetTime: number) => {
-      let config = getConfig()
-      let d = (8 * parseTimeToMs(config.period)) / 1000
+      let d = (8 * parseTimeToMs(getConfig().period)) / 1000
       let { x, y } = getHeadLocation((8 * targetTime) / 1000)
-      ctx.fillStyle = '#707070'
+      let theme = getConfig().themeObject
+      ctx.fillStyle = theme.open
       ctx.fillRect(x, y, d, 1)
-      if (config.debug || x % 480 <= 2 * d) {
-         drawTimeRuler()
+      if (getConfig().debug || x % 480 <= 2 * d) {
+         drawTimeIndicator()
       }
 
       return {
          closeSuccess: () => {
-            ctx.fillStyle = '#404040'
+            ctx.fillStyle = theme.success
             ctx.fillRect(x, y, d, 1)
          },
          closeError: () => {
-            ctx.fillStyle = '#F0F0F0'
+            ctx.fillStyle = theme.failure
             ctx.fillRect(x, y, d, 1)
          },
       }
    }
 
-   let drawTimeRuler = () => {}
+   let drawTimeIndicator = () => {}
    // Rulers and indications
    getDrawText().then((drawer) => {
-      drawTimeRuler = () => {
+      drawTimeIndicator = () => {
          Array.from({ length: 2 }, (_, k2) => {
             Array.from({ length: 24 }, (_, k24) => {
+               // hour labels
                let y = 15 * (k24 + 24 * k2)
                Array.from({ length: 4 }, (_, k4) => {
-                  drawer.drawText(ctx, { y: y + 1, x: k4 * 480 }, ` ${k24 + 1}`.slice(-2))
+                  drawer.drawText(
+                     ctx,
+                     { y: y + 1, x: k4 * 480 },
+                     ` ${k24 + 1}`.slice(-2),
+                     getConfig().themeObject.textbg,
+                  )
                })
+
+               // dots
+               ctx.fillStyle = getConfig().themeObject.ruler
                if (k24 % 2 === 0) {
-                  ctx.fillStyle = '#C0C0C0'
                   Array.from({ length: 4 * (480 / 8) }, (_, k60) => {
                      ctx.fillRect(k60 * 8, y, 1, 1)
                   })
@@ -72,7 +81,7 @@ export let createConvolutedDisplay = ({ canvas, getConfig }: DisplayProp) => {
          })
       }
 
-      drawTimeRuler()
+      drawTimeIndicator()
    })
 
    return {
@@ -80,7 +89,7 @@ export let createConvolutedDisplay = ({ canvas, getConfig }: DisplayProp) => {
       wipe,
       restore,
       drawTimeRuler: () => {
-         drawTimeRuler()
+         drawTimeIndicator()
       },
    }
 }

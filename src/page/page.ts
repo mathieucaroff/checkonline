@@ -1,11 +1,11 @@
 import { OnlineConfig } from '../type/onlineConfig'
 
 export interface PageProp {
-   config: OnlineConfig
+   getConfig: () => OnlineConfig
    document: Document
 }
 
-export let createPage = ({ document, config }: PageProp) => {
+export let createPage = ({ document, getConfig }: PageProp) => {
    let status: 'unknown' | 'connected' | 'disconnected' = 'unknown'
 
    let favicon = document.getElementById('favicon') as HTMLLinkElement
@@ -17,16 +17,16 @@ export let createPage = ({ document, config }: PageProp) => {
          if (status !== 'connected') {
             status = 'connected'
             favicon.href = faviconConnected.href
-            document.title = config.connectedTitle
-            document.documentElement.style.backgroundColor = config.connectedColor
+            document.title = getConfig().connectedTitle
+            document.documentElement.style.backgroundColor = getConfig().themeObject.connected
          }
       },
       markOffline: () => {
          if (status !== 'disconnected') {
             status = 'disconnected'
             favicon.href = faviconDisconnected.href
-            document.title = config.disconnectedTitle
-            document.documentElement.style.backgroundColor = config.disconnectedColor
+            document.title = getConfig().disconnectedTitle
+            document.documentElement.style.backgroundColor = getConfig().themeObject.disconnected
          }
       },
    }

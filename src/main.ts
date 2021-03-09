@@ -1,6 +1,6 @@
 import { Subscription } from 'rxjs'
 import { createObservableClock } from './clock/clock'
-import { getConfig } from './config'
+import { parseConfig } from './config'
 import { pingTest } from './connection/connection'
 import { createConvolutedDisplay } from './display/display'
 import { initPage } from './page/init'
@@ -47,15 +47,15 @@ export let main = async () => {
 
    const updateConfig = () => {
       let lastConfig: OnlineConfig = config
-      config = getConfig(location)
+      config = parseConfig(location)
       runConfig(config, lastConfig)
    }
 
-   let config = getConfig(location)
+   let config = parseConfig(location)
 
    // Initialize the page
    let { canvas } = initPage({ config, document, location, window })
-   let page = createPage({ config, document })
+   let page = createPage({ document, getConfig: () => config })
 
    let display = createConvolutedDisplay({ canvas, getConfig: () => config })
 

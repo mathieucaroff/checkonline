@@ -1,8 +1,8 @@
+import { parseTheme } from './theme/theme'
 import { OnlineConfig } from './type/onlineConfig'
-import { parseTimeToMs } from './util/parseTimeToMs'
 import { getUrlParam, spacelessUrl, urlRemoveParam } from './util/urlParam'
 
-export let getConfig = (location: Location) => {
+export let parseConfig = (location: Location) => {
    spacelessUrl(location)
 
    let config = getUrlParam<OnlineConfig>(location, {
@@ -32,10 +32,12 @@ export let getConfig = (location: Location) => {
          return targetArray.slice(0, targetCount()).join('==')
       },
       // page
-      connectedColor: () => '#000',
       connectedTitle: () => 'Online',
-      disconnectedColor: () => '#FFF',
       disconnectedTitle: () => 'DISCONNECTED',
+      // theme
+      theme: () => 'semantic',
+      color: () => '',
+      themeObject: ({ theme, color }) => parseTheme({ theme: theme(), color: color() }),
    })
 
    console.info('config', config)

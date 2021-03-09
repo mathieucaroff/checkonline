@@ -1,15 +1,24 @@
+import { Theme } from '../theme/theme'
+
 export interface OnlineConfig {
-   clear: boolean
-   connectedColor: string
-   connectedTitle: string
+   // programmer
    debug: boolean
-   disconnectedColor: string
-   disconnectedTitle: string
-   period: string
-   fast: boolean
+   // canvas
+   clear: boolean
    width: number
    height: number
+   // clock
+   fast: boolean
+   period: string
+   // connection
+   timeout: number
    targetList: string
    targetCount: number
-   timeout: number
+   // page
+   connectedTitle: string
+   disconnectedTitle: string
+   // theme
+   theme: string
+   color: string
+   themeObject: Theme
 }

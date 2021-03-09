@@ -6,8 +6,15 @@ export let getDrawText = async () => {
    let font = await loadImage(fontUrl)
 
    return {
-      drawText: (ctx: CanvasRenderingContext2D, position: Pair, text: string) => {
-         ctx.fillStyle = '#C0C0C0'
+      drawText: (
+         ctx: CanvasRenderingContext2D,
+         position: Pair,
+         text: string,
+         backgroundColor: string,
+      ) => {
+         if (backgroundColor) {
+            ctx.fillStyle = backgroundColor
+         }
          ctx.fillRect(position.x, position.y + 1, 6 * text.length + 1, 9)
          ;[...text].forEach((c, k) => {
             if (isNaN(parseInt(c, 10))) {
