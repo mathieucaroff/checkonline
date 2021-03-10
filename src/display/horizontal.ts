@@ -33,7 +33,7 @@ export let createHorizontalDisplay = ({ canvas, getConfig }: DisplayProp) => {
    const open = (targetTime: number) => {
       let d = (8 * parseTimeToMs(getConfig().period)) / 1000
       let { x, y } = getHeadLocation((8 * targetTime) / 1000)
-      console.log({ x, y })
+
       let theme = getConfig().themeObject
       ctx.fillStyle = theme.open
       ctx.fillRect(x, y, d, 1)
