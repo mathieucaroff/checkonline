@@ -1,5 +1,6 @@
 import { parseTheme } from './theme/theme'
 import { OnlineConfig } from './type/onlineConfig'
+import { parseTimeToMs } from './util/parseTimeToMs'
 import { getUrlParam, spacelessUrl, urlRemoveParam } from './util/urlParam'
 
 export let parseConfig = (location: Location) => {
@@ -20,6 +21,12 @@ export let parseConfig = (location: Location) => {
          } else {
             return '500ms'
          }
+      },
+      periodNumber: ({ period }) => {
+         return parseTimeToMs(period())
+      },
+      pixelPeriod: ({ periodNumber }) => {
+         return (8 * periodNumber()) / 1000
       },
       // connection
       timeout: () => 500,

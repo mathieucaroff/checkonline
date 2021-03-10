@@ -7,13 +7,12 @@ import { initPage } from './page/init'
 import { createPage } from './page/page'
 import { OnlineConfig } from './type/onlineConfig'
 import { loadImage } from './util/loadImage'
-import { parseTimeToMs } from './util/parseTimeToMs'
 import { urlRemoveParam } from './util/urlParam'
 
 export let main = async () => {
    const setUpdateInterval = () => {
       clockSub.unsubscribe()
-      clockSub = createObservableClock(parseTimeToMs(config.period)).subscribe((targetTime) => {
+      clockSub = createObservableClock(config.periodNumber).subscribe((targetTime) => {
          let closer = display.open(targetTime)
 
          pingTest(config.targetList.split('=='), config.timeout)
@@ -27,6 +26,14 @@ export let main = async () => {
             })
       })
    }
+
+   let config = parseConfig(location)
+
+   // Initialize the page
+   let { canvas } = initPage({ config, document, location, window })
+   let page = createPage({ document, getConfig: () => config })
+
+   let display = createHorizontalDisplay({ canvas, getConfig: () => config })
 
    // Initialize the configuration and make it auto-update the state
    let clockSub: Subscription = Subscription.EMPTY
@@ -45,21 +52,14 @@ export let main = async () => {
       }
    }
 
+   runConfig(config, {} as any)
+
    const updateConfig = () => {
       let lastConfig: OnlineConfig = config
       config = parseConfig(location)
       runConfig(config, lastConfig)
    }
 
-   let config = parseConfig(location)
-
-   // Initialize the page
-   let { canvas } = initPage({ config, document, location, window })
-   let page = createPage({ document, getConfig: () => config })
-
-   let display = createHorizontalDisplay({ canvas, getConfig: () => config })
-
-   runConfig(config, {} as any)
    window.addEventListener('hashchange', updateConfig)
 
    // Restoring / Backing up the canvas image

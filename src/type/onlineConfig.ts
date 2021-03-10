@@ -10,6 +10,8 @@ export interface OnlineConfig {
    // clock
    fast: boolean
    period: string
+   periodNumber: number
+   pixelPeriod: number
    // connection
    timeout: number
    targetList: string
