@@ -2,7 +2,6 @@ import { getContext2d } from '../util/getContext'
 import { divmod } from '../util/divmod'
 import { getDrawText } from '../util/drawText'
 import { OnlineConfig } from '../type/onlineConfig'
-import { parseTimeToMs } from '../util/parseTimeToMs'
 
 let getHeadLocation = (p: number) => {
    let [a, esx] = divmod(p, 8 * 60) // eigth of seconds ~ x coordinate
@@ -31,8 +30,11 @@ export let createConvolutedDisplay = ({ canvas, getConfig }: DisplayProp) => {
 
    // clockUpdate
    const open = (targetTime: number) => {
-      let d = (8 * parseTimeToMs(getConfig().period)) / 1000
-      let { x, y } = getHeadLocation((8 * targetTime) / 1000)
+      let pixelTime = (8 * targetTime) / 1000
+      let d = getConfig().pixelPeriod
+      pixelTime -= pixelTime % d
+      let { x, y } = getHeadLocation(pixelTime)
+
       let theme = getConfig().themeObject
       ctx.fillStyle = theme.open
       ctx.fillRect(x, y, d, 1)
