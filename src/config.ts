@@ -29,6 +29,7 @@ export let parseConfig = (location: Location) => {
          return (8 * periodNumber()) / 1000
       },
       // connection
+      fail: () => false,
       timeout: () => 500,
       targetCount: () => 2,
       targetList: ({ targetCount }) => {

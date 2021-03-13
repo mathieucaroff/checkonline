@@ -15,7 +15,7 @@ export let main = async () => {
       clockSub = createObservableClock(config.periodNumber).subscribe((targetTime) => {
          let closer = display.open(targetTime)
 
-         pingTest(config.targetList.split('=='), config.timeout)
+         pingTest(config, location)
             .then(() => {
                page.markConnected()
                closer.closeSuccess()

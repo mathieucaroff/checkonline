@@ -13,6 +13,7 @@ export interface OnlineConfig {
    periodNumber: number
    pixelPeriod: number
    // connection
+   fail: boolean
    timeout: number
    targetList: string
    targetCount: number

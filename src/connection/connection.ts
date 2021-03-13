@@ -2,12 +2,23 @@
  * Test whether internet is available by loading an image
  */
 
+import { OnlineConfig } from '../type/onlineConfig'
 import { loadImage } from '../util/loadImage'
+import { urlRemoveParam } from '../util/urlParam'
 
-export let pingTest = (imageUrlList: string[], timeout) => {
+export let pingTest = (config: OnlineConfig, location: Location) => {
+   let imageUrlList = config.targetList.split('==')
    let startTime = new Date().getTime()
 
    return new Promise<number>((resolve, reject) => {
+      if (config.fail) {
+         urlRemoveParam(location, 'fail')
+         setTimeout(() => {
+            reject('fake timeout')
+         }, config.timeout)
+         return
+      }
+
       let handle = () => {
          clearTimeout(errorTimeoutId)
          resolve(new Date().getTime() - startTime)
@@ -19,6 +30,6 @@ export let pingTest = (imageUrlList: string[], timeout) => {
 
       let errorTimeoutId = setTimeout(() => {
          reject('timeout')
-      }, timeout)
+      }, config.timeout)
    })
 }
