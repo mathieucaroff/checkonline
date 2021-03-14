@@ -84,6 +84,14 @@ export let main = async () => {
       displayLeft.wipe() // make the canvas non-transparent and grey
    }
 
+   let rightImageDataUrl = storage.loadImage(new Date(Date.now() - 86400 * 1000))
+   if (rightImageDataUrl) {
+      displayRight.restore(await loadImage(rightImageDataUrl))
+   } else {
+      displayRight.wipe()
+      displayRight.drawTimeIndicator()
+   }
+
    window.addEventListener('beforeunload', () => {
       storage.saveImage(canvasLeft, new Date())
    })

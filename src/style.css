@@ -32,6 +32,13 @@ body {
    overscroll-behavior: none;
 }
 
+.drawarea {
+   border: solid #333;
+   border-width: 0 5px 5px 0;
+   padding: 1px;
+   margin: 1px;
+}
+
 .inline {
    display: inline
 }

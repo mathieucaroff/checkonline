@@ -13,15 +13,14 @@ export let initPage = (prop: InitProp) => {
    let { document } = prop
 
    let canvasLeft = h('canvas', {
+      className: 'drawarea',
       width: 900, // 15 * 60
       height: 768, // 8 * 24 * 4
    })
    let canvasRight = h('canvas', {
+      className: 'drawarea',
       width: 900,
-      height: 720,
-      style: {
-         display: 'none',
-      },
+      height: 768,
    })
 
    let corner = h('i', {
