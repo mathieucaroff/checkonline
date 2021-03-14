@@ -24,6 +24,8 @@ export interface OnlineConfig {
    title: boolean
    connectedTitle: string
    disconnectedTitle: string
+   // rightside canvas
+   right: string
    // theme
    theme: string
    color: string

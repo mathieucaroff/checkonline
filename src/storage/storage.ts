@@ -10,5 +10,8 @@ export let createStorage = () => {
       loadImage: (time: Date) => {
          return localStorage.getItem(imageName(time))
       },
+      loadImageFromDay: (dayName: string) => {
+         return localStorage.getItem(`image${dayName}`)
+      },
    }
 }

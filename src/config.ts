@@ -1,5 +1,6 @@
 import { parseTheme } from './theme/theme'
 import { OnlineConfig } from './type/onlineConfig'
+import { day } from './util/day'
 import { parseTimeToMs } from './util/parseTimeToMs'
 import { getUrlParam, spacelessUrl, urlRemoveParam } from './util/urlParam'
 
@@ -52,6 +53,8 @@ export let parseConfig = (location: Location) => {
       title: () => false,
       connectedTitle: ({ title }) => (title() ? 'CONNECTED' : 'Online'),
       disconnectedTitle: ({ title }) => (title() ? 'DISCONNECTED' : 'Online'),
+      // rightside canvas
+      right: () => day(new Date(Date.now() - 86400 * 1000)),
       // theme
       theme: () => 'semantic',
       color: () => '',

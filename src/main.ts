@@ -63,6 +63,14 @@ export let main = async () => {
          // (Re)-Start ticking
          setUpdateInterval()
       }
+
+      let rightImageDataUrl = storage.loadImageFromDay(config.right)
+      if (rightImageDataUrl) {
+         loadImage(rightImageDataUrl).then(displayRight.restore)
+      } else {
+         displayRight.wipe()
+         displayRight.drawTimeIndicator()
+      }
    }
 
    runConfig(config, {} as any)
@@ -84,14 +92,6 @@ export let main = async () => {
       displayLeft.wipe() // make the canvas non-transparent and grey
    }
 
-   let rightImageDataUrl = storage.loadImage(new Date(Date.now() - 86400 * 1000))
-   if (rightImageDataUrl) {
-      displayRight.restore(await loadImage(rightImageDataUrl))
-   } else {
-      displayRight.wipe()
-      displayRight.drawTimeIndicator()
-   }
-
    window.addEventListener('beforeunload', () => {
       storage.saveImage(canvasLeft, new Date())
    })
@@ -102,5 +102,6 @@ export let main = async () => {
       console.log(`handledDayChange (${new Date(lastDay).toISOString()})`)
       displayLeft.wipe()
       displayLeft.drawTimeIndicator()
+      updateConfig()
    }
 }
