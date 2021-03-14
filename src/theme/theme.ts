@@ -60,50 +60,51 @@ export interface Theme {
    failure: string
 }
 
+export let nameList = [
+   'disconnected',
+   'connected',
+   'background',
+   'ruler',
+   'textbg',
+   'open',
+   'success',
+   'failure',
+]
+
+export let nameMap: Record<string, string> = {}
+
+nameList.forEach((name) => {
+   nameMap[name] = name
+   nameMap[name[0]] = name
+})
+
 export let parseTheme = (config: ThemeConfig) => {
    let theme = {} as Theme
 
-   let nameList = [
-      'disconnected',
-      'connected',
-      'background',
-      'ruler',
-      'textbg',
-      'open',
-      'success',
-      'failure',
-   ]
+   if (config.theme) {
+      theme = parseTheme({ color: colorObject[config.theme] || colorObject.semantic })
+   }
 
-   let nameMap: Record<string, string> = {}
+   if (config.color.length === 0) {
+       return theme
+   }
 
-   nameList.forEach((name) => {
-      nameMap[name] = name
-      nameMap[name[0]] = name
-   })
-
-   let k = 0
    let pieceList = config.color.split(/==\b/) // the name cannot be empty but the value can
-   pieceList.forEach((piece) => {
+
+   pieceList.forEach((piece, k) => {
       let nameValue = piece.split('=')
+      let name: string
+      let value: string
       if (nameValue.length >= 2) {
-         theme[nameMap[nameValue[0]]] = nameValue.slice(1).join('=')
+         name = nameMap[nameValue[0]]
+         value = nameValue.slice(1).join('=')
       } else {
-         theme[nameList[k]] = piece
+         name = nameList[k]
+         value = piece
          k += 1
       }
+      theme[name] = value
    })
-
-   theme.success = theme.success ?? theme.connected
-   theme.failure = theme.failure ?? theme.disconnected
-
-   if (config.theme) {
-      Object.entries(parseTheme({ color: colorObject[config.theme] || colorObject.semantic })).map(
-         ([name, color]) => {
-            theme[name] = theme[name] ?? color
-         },
-      )
-      console.log('theme', theme)
-   }
 
    return theme
 }
