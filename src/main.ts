@@ -13,7 +13,7 @@ export let main = async () => {
    const setUpdateInterval = () => {
       clockSub.unsubscribe()
       clockSub = createObservableClock(config.periodNumber).subscribe((targetTime) => {
-         let closer = displayLeft.open(targetTime)
+         let closer = displayLeft.open(targetTime + config.compoundOffset * 1000)
 
          pingTest(config, location)
             .then(() => {

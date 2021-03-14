@@ -10,6 +10,9 @@ export interface OnlineConfig {
    period: string
    periodNumber: number
    pixelPeriod: number
+   timezone: number
+   timeoffset: number
+   compoundOffset: number
    // connection
    fail: boolean
    timeout: number

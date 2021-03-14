@@ -26,6 +26,9 @@ export let parseConfig = (location: Location) => {
       pixelPeriod: ({ periodNumber }) => {
          return (8 * periodNumber()) / 1000
       },
+      timezone: () => new Date().getTimezoneOffset(),
+      timeoffset: () => 0,
+      compoundOffset: ({ timezone, timeoffset }) => timeoffset() - timezone() * 60,
       // connection
       fail: () => false,
       timeout: () => 500,
