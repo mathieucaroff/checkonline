@@ -18,6 +18,7 @@ export interface OnlineConfig {
    targetList: string
    targetCount: number
    // page
+   title: boolean
    connectedTitle: string
    disconnectedTitle: string
    // theme

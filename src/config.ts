@@ -40,8 +40,9 @@ export let parseConfig = (location: Location) => {
          return targetArray.slice(0, targetCount()).join('==')
       },
       // page
-      connectedTitle: () => 'Online',
-      disconnectedTitle: () => 'DISCONNECTED',
+      title: () => false,
+      connectedTitle: ({ title }) => (title() ? 'CONNECTED' : 'Online'),
+      disconnectedTitle: ({ title }) => (title() ? 'DISCONNECTED' : 'Online'),
       // theme
       theme: () => 'semantic',
       color: () => '',
