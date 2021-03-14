@@ -29,7 +29,7 @@ export let createDisplay = ({ canvas, getConfig }: DisplayProp) => {
 
    const open = (targetTime: number) => {
       let pixelTime = (8 * targetTime) / 1000
-      let { debug, pixelPeriod } = getConfig()
+      let { pixelPeriod } = getConfig()
 
       pixelTime -= pixelTime % pixelPeriod
       let { x, y } = getHeadLocation(pixelTime)
@@ -39,7 +39,7 @@ export let createDisplay = ({ canvas, getConfig }: DisplayProp) => {
       let theme = getConfig().themeObject
       ctx.fillStyle = theme.open
       ctx.fillRect(x, y, w, h)
-      if (debug || x % canvas.width <= 14) {
+      if (x % canvas.width <= 14) {
          drawTimeIndicator()
       }
 
@@ -61,7 +61,7 @@ export let createDisplay = ({ canvas, getConfig }: DisplayProp) => {
       drawTimeIndicator = () => {
          let bg = getConfig().themeObject.textbg
 
-         Array.from({ length: 24 }, (_, k25) => {
+         Array.from({ length: 25 }, (_, k25) => {
             // hour labels
             let y = 8 * 4 * k25 // 8 pixels, 4 rows per hour
             drawer.drawText(ctx, { y, x: 0 }, ` ${k25}`.slice(-2), bg)

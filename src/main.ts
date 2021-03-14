@@ -5,15 +5,25 @@ import { pingTest } from './connection/connection'
 import { createDisplay } from './display/display'
 import { initPage } from './page/init'
 import { createPage } from './page/page'
+import { createStorage } from './storage/storage'
 import { OnlineConfig } from './type/onlineConfig'
 import { loadImage } from './util/loadImage'
 import { urlRemoveParam } from './util/urlParam'
 
 export let main = async () => {
+   let now = Date.now()
+   let lastDay = now - (now % (86400 * 1000))
+
    const setUpdateInterval = () => {
       clockSub.unsubscribe()
       clockSub = createObservableClock(config.periodNumber).subscribe((targetTime) => {
-         let closer = displayLeft.open(targetTime + config.compoundOffset * 1000)
+         let localTime = targetTime + config.compoundOffset * 1000
+         let day = localTime - (localTime % (86400 * 1000))
+         if (day !== lastDay) {
+            handleDayChange(lastDay)
+            lastDay = day
+         }
+         let closer = displayLeft.open(localTime)
 
          pingTest(config, location)
             .then(() => {
@@ -32,6 +42,8 @@ export let main = async () => {
    // Initialize the page
    let { canvasLeft, canvasRight } = initPage({ config, document, window })
    let page = createPage({ document, getConfig: () => config })
+
+   let storage = createStorage()
 
    let displayLeft = createDisplay({ canvas: canvasLeft, getConfig: () => config })
    let displayRight = createDisplay({ canvas: canvasRight, getConfig: () => config })
@@ -65,7 +77,7 @@ export let main = async () => {
    document.addEventListener('visibilitychange', updateConfig)
 
    // Restoring / Backing up the canvas image
-   let imageDataUrl = localStorage.getItem('image')
+   let imageDataUrl = storage.loadImage(new Date())
    if (imageDataUrl) {
       displayLeft.restore(await loadImage(imageDataUrl))
    } else {
@@ -73,6 +85,14 @@ export let main = async () => {
    }
 
    window.addEventListener('beforeunload', () => {
-      localStorage.setItem('image', canvasLeft.toDataURL('image/png'))
+      storage.saveImage(canvasLeft, new Date())
    })
+
+   // handleDayChange
+   let handleDayChange = (lastDay: number) => {
+      storage.saveImage(canvasLeft, new Date(lastDay))
+      console.log(`handledDayChange (${new Date(lastDay).toISOString()})`)
+      displayLeft.wipe()
+      displayLeft.drawTimeIndicator()
+   }
 }
