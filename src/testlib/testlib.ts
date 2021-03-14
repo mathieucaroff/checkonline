@@ -20,8 +20,8 @@ export let createExecutor = <TI extends unknown[], TO>(
       case: (input_args: TI, expected_output: TO) => {
          let result_output = function_under_test(...input_args)
          let success = deepEqual(result_output, expected_output)
-         let context = `${getCodeLink(1)}: got (${result_output}), expected (${expected_output})`
-         reporter.receive(success, context)
+         let codeLink = getCodeLink(1)
+         reporter.receive(success, codeLink, result_output, expected_output)
       },
       close: () => {
          reporter.close()
@@ -29,15 +29,15 @@ export let createExecutor = <TI extends unknown[], TO>(
    }
 }
 
-export let createReporter = (outputFunction: (input: string) => void) => {
+export let createReporter = (outputFunction: (...args: unknown[]) => void) => {
    let totalExecuted = 0
    let totalFailed = 0
 
    return {
-      receive: (success: boolean, context: string) => {
+      receive: (success: boolean, codeLink: string, result: unknown, expected: unknown) => {
          if (!success) {
             totalFailed++
-            outputFunction(`failed: ${context}`)
+            outputFunction(`failed at ${codeLink}: got`, result, 'expected', expected)
          }
          totalExecuted++
       },
