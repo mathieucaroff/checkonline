@@ -1,5 +1,5 @@
-# (Am I?) Online
+# Online
 
 A simple Network Connectivity Watcher
 
-[amionline.vercel.app](https://amionline.vercel.app/)
+[checkonline.vercel.app](https://checkonline.vercel.app/)
