@@ -7,7 +7,9 @@ export interface OnlineConfig {
    clear: boolean
    // clock
    fast: boolean
-   period: string
+   conditionalPeriod: string // period with the tab is visible, slowPeriod otherwise
+   period: string // visible period
+   slowPeriod: string // non visible period
    periodNumber: number
    pixelPeriod: number
    timezone: number

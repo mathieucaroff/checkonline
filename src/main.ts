@@ -47,7 +47,7 @@ export let main = async () => {
          urlRemoveParam(location, 'clear')
       }
 
-      if (config.period !== lastConfig.period) {
+      if (config.conditionalPeriod !== lastConfig.conditionalPeriod) {
          // (Re)-Start ticking
          setUpdateInterval()
       }
@@ -62,6 +62,7 @@ export let main = async () => {
    }
 
    window.addEventListener('hashchange', updateConfig)
+   document.addEventListener('visibilitychange', updateConfig)
 
    // Restoring / Backing up the canvas image
    let imageDataUrl = localStorage.getItem('image')

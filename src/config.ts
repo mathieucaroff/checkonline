@@ -20,8 +20,16 @@ export let parseConfig = (location: Location) => {
             return '500ms'
          }
       },
-      periodNumber: ({ period }) => {
-         return parseTimeToMs(period())
+      slowPeriod: () => '1s',
+      conditionalPeriod: ({ period: visiblePeriod, slowPeriod: nonVisiblePeriod }) => {
+         if (document.visibilityState === 'visible') {
+            return visiblePeriod()
+         } else {
+            return nonVisiblePeriod()
+         }
+      },
+      periodNumber: ({ conditionalPeriod }) => {
+         return parseTimeToMs(conditionalPeriod())
       },
       pixelPeriod: ({ periodNumber }) => {
          return (8 * periodNumber()) / 1000
