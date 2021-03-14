@@ -60,7 +60,7 @@ export interface Theme {
    failure: string
 }
 
-export let nameList = [
+export let nameList: (keyof Theme)[] = [
    'disconnected',
    'connected',
    'background',
@@ -86,24 +86,17 @@ export let parseTheme = (config: ThemeConfig) => {
    }
 
    if (config.color.length === 0) {
-       return theme
+      return theme
    }
 
    let pieceList = config.color.split(/==\b/) // the name cannot be empty but the value can
 
-   pieceList.forEach((piece, k) => {
+   pieceList.forEach((piece) => {
       let nameValue = piece.split('=')
-      let name: string
-      let value: string
-      if (nameValue.length >= 2) {
-         name = nameMap[nameValue[0]]
-         value = nameValue.slice(1).join('=')
-      } else {
-         name = nameList[k]
-         value = piece
-         k += 1
+      if (nameValue.length < 2) {
+         return // skip
       }
-      theme[name] = value
+      theme[nameMap[nameValue[0]]] = nameValue.slice(1).join('=')
    })
 
    return theme
