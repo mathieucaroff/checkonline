@@ -28,7 +28,6 @@ export let createHorizontalDisplay = ({ canvas, getConfig }: DisplayProp) => {
       ctx.drawImage(image, 0, 0)
    }
 
-   // clockUpdate
    const open = (targetTime: number) => {
       let pixelTime = (8 * targetTime) / 1000
       let d = getConfig().pixelPeriod

@@ -5,8 +5,6 @@ export interface OnlineConfig {
    debug: boolean
    // canvas
    clear: boolean
-   width: number
-   height: number
    // clock
    fast: boolean
    period: string

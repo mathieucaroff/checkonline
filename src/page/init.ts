@@ -6,16 +6,22 @@ import { h } from '../lib/hyper'
 interface InitProp {
    config: OnlineConfig
    document: Document
-   location: Location
    window: Window
 }
 
 export let initPage = (prop: InitProp) => {
-   let { config, document, window } = prop
+   let { document } = prop
 
-   let canvas = h('canvas', {
-      width: config.width,
-      height: config.height,
+   let canvasLeft = h('canvas', {
+      width: 960,
+      height: 720,
+   })
+   let canvasRight = h('canvas', {
+      width: 960,
+      height: 720,
+      style: {
+         display: 'none',
+      },
    })
 
    let corner = h('i', {
@@ -27,11 +33,12 @@ export let initPage = (prop: InitProp) => {
          textContent: document.title,
          className: 'inline',
       }),
-      h('div', {}, [canvas]),
+      h('div', {}, [canvasLeft, canvasRight]),
       corner,
    )
 
    return {
-      canvas,
+      canvasLeft,
+      canvasRight,
    }
 }

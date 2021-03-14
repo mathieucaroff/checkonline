@@ -11,8 +11,6 @@ export let parseConfig = (location: Location) => {
       debug: () => false,
       // canvas
       clear: () => false,
-      height: () => 720,
-      width: () => 1920,
       // clock
       fast: () => false,
       period: ({ fast }) => {

@@ -2,7 +2,7 @@ import { Subscription } from 'rxjs'
 import { createObservableClock } from './clock/clock'
 import { parseConfig } from './config'
 import { pingTest } from './connection/connection'
-import { createHorizontalDisplay } from './display/horizontal'
+import { createDisplay } from './display/display'
 import { initPage } from './page/init'
 import { createPage } from './page/page'
 import { OnlineConfig } from './type/onlineConfig'
@@ -13,7 +13,7 @@ export let main = async () => {
    const setUpdateInterval = () => {
       clockSub.unsubscribe()
       clockSub = createObservableClock(config.periodNumber).subscribe((targetTime) => {
-         let closer = display.open(targetTime)
+         let closer = displayLeft.open(targetTime)
 
          pingTest(config, location)
             .then(() => {
@@ -30,10 +30,11 @@ export let main = async () => {
    let config = parseConfig(location)
 
    // Initialize the page
-   let { canvas } = initPage({ config, document, location, window })
+   let { canvasLeft, canvasRight } = initPage({ config, document, window })
    let page = createPage({ document, getConfig: () => config })
 
-   let display = createHorizontalDisplay({ canvas, getConfig: () => config })
+   let displayLeft = createDisplay({ canvas: canvasLeft, getConfig: () => config })
+   let displayRight = createDisplay({ canvas: canvasRight, getConfig: () => config })
 
    // Initialize the configuration and make it auto-update the state
    let clockSub: Subscription = Subscription.EMPTY
@@ -41,8 +42,8 @@ export let main = async () => {
    const runConfig = (config: OnlineConfig, lastConfig: OnlineConfig) => {
       if (config.clear) {
          localStorage.removeItem('image')
-         display.wipe()
-         display.drawTimeRuler()
+         displayLeft.wipe()
+         displayLeft.drawTimeRuler()
          urlRemoveParam(location, 'clear')
       }
 
@@ -65,12 +66,12 @@ export let main = async () => {
    // Restoring / Backing up the canvas image
    let imageDataUrl = localStorage.getItem('image')
    if (imageDataUrl) {
-      display.restore(await loadImage(imageDataUrl))
+      displayLeft.restore(await loadImage(imageDataUrl))
    } else {
-      display.wipe() // make the canvas non-transparent and grey
+      displayLeft.wipe() // make the canvas non-transparent and grey
    }
 
    window.addEventListener('beforeunload', () => {
-      localStorage.setItem('image', canvas.toDataURL('image/png'))
+      localStorage.setItem('image', canvasLeft.toDataURL('image/png'))
    })
 }

@@ -1,34 +1,31 @@
-import { getContext2d } from '../util/getContext'
+import { OnlineConfig } from '../type/onlineConfig'
 import { divmod } from '../util/divmod'
 import { getDrawText } from '../util/drawText'
-import { OnlineConfig } from '../type/onlineConfig'
+import { getContext2d } from '../util/getContext'
 
 let getHeadLocation = (p: number) => {
-   let [a, esx] = divmod(p, 8 * 60) // eigth of seconds ~ x coordinate
-   let [b, my] = divmod(a, 15) // minutes ~ y coordinate
-   let [c, qh] = divmod(b, 4) // quarter hours (x coordinate)
-   let [d, h] = divmod(c, 48) // hours (y coordinate)
-   return { x: 8 * 60 * qh + esx, y: 15 * h + my }
+   let [q, x] = divmod(p, 8 * 60 * 2) // eigth of seconds ~ x coordinate
+   let [_, y] = divmod(q, 720)
+   return { y, x }
 }
 
-interface DisplayProp {
+export interface DisplayProp {
    canvas: HTMLCanvasElement
    getConfig: () => OnlineConfig
 }
 
-export let createConvolutedDisplay = ({ canvas, getConfig }: DisplayProp) => {
+export let createDisplay = ({ canvas, getConfig }: DisplayProp) => {
    let { ctx } = getContext2d(canvas)
+
+   const restore = (image: HTMLImageElement) => {
+      ctx.drawImage(image, 0, 0)
+   }
 
    const wipe = () => {
       ctx.fillStyle = getConfig().themeObject.background
       ctx.fillRect(0, 0, canvas.width, canvas.height)
    }
 
-   const restore = (image: HTMLImageElement) => {
-      ctx.drawImage(image, 0, 0)
-   }
-
-   // clockUpdate
    const open = (targetTime: number) => {
       let pixelTime = (8 * targetTime) / 1000
       let d = getConfig().pixelPeriod
@@ -58,26 +55,17 @@ export let createConvolutedDisplay = ({ canvas, getConfig }: DisplayProp) => {
    // Rulers and indications
    getDrawText().then((drawer) => {
       drawTimeIndicator = () => {
-         Array.from({ length: 2 }, (_, k2) => {
-            Array.from({ length: 24 }, (_, k24) => {
-               // hour labels
-               let y = 15 * (k24 + 24 * k2)
-               Array.from({ length: 4 }, (_, k4) => {
-                  drawer.drawText(
-                     ctx,
-                     { y: y + 1, x: k4 * 480 },
-                     ` ${k24}`.slice(-2),
-                     getConfig().themeObject.textbg,
-                  )
-               })
+         let bg = getConfig().themeObject.textbg
 
-               // dots
-               ctx.fillStyle = getConfig().themeObject.ruler
-               if (k24 % 2 === 0) {
-                  Array.from({ length: 4 * (480 / 8) }, (_, k60) => {
-                     ctx.fillRect(k60 * 8, y, 1, 1)
-                  })
-               }
+         Array.from({ length: 24 }, (_, k24) => {
+            // hour labels
+            let y = 30 * k24
+            drawer.drawText(ctx, { y, x: 0 }, ` ${k24}`.slice(-2), bg)
+
+            // dots
+            ctx.fillStyle = getConfig().themeObject.ruler
+            Array.from({ length: 1920 / 2 / 8 }, (_, k240) => {
+               ctx.fillRect(k240 * 8, y, 1, 1)
             })
          })
       }
