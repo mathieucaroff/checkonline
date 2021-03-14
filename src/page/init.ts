@@ -13,11 +13,11 @@ export let initPage = (prop: InitProp) => {
    let { document } = prop
 
    let canvasLeft = h('canvas', {
-      width: 960,
-      height: 720,
+      width: 900, // 15 * 60
+      height: 768, // 8 * 24 * 4
    })
    let canvasRight = h('canvas', {
-      width: 960,
+      width: 900,
       height: 720,
       style: {
          display: 'none',

@@ -4,9 +4,10 @@ import { getDrawText } from '../util/drawText'
 import { getContext2d } from '../util/getContext'
 
 let getHeadLocation = (p: number) => {
-   let [q, x] = divmod(p, 8 * 60 * 2) // eigth of seconds ~ x coordinate
-   let [_, y] = divmod(q, 720)
-   return { y, x }
+   let [q, y8] = divmod(p, 8) // eigth of seconds ~ x coordinate
+   let [r, x] = divmod(q, 15 * 60) // one quarter hour is 15 minutes and one minute is 60 seconds
+   let [_, y1] = divmod(r, 24 * 4) // one day is 24 hours and one hour is 4 quarter hours
+   return { y: y8 + 8 * y1, x }
 }
 
 export interface DisplayProp {
@@ -28,25 +29,28 @@ export let createDisplay = ({ canvas, getConfig }: DisplayProp) => {
 
    const open = (targetTime: number) => {
       let pixelTime = (8 * targetTime) / 1000
-      let d = getConfig().pixelPeriod
-      pixelTime -= pixelTime % d
+      let { debug, pixelPeriod } = getConfig()
+
+      pixelTime -= pixelTime % pixelPeriod
       let { x, y } = getHeadLocation(pixelTime)
+      let [w, h] = divmod(pixelPeriod + 8 - 1, 8) // -1
+      h += 1 // +1
 
       let theme = getConfig().themeObject
       ctx.fillStyle = theme.open
-      ctx.fillRect(x, y, d, 1)
-      if (getConfig().debug || x % 480 <= 2 * d) {
+      ctx.fillRect(x, y, w, h)
+      if (debug || x % 480 <= 2 * h) {
          drawTimeIndicator()
       }
 
       return {
          closeSuccess: () => {
             ctx.fillStyle = theme.success
-            ctx.fillRect(x, y, d, 1)
+            ctx.fillRect(x, y, w, h)
          },
          closeError: () => {
             ctx.fillStyle = theme.failure
-            ctx.fillRect(x, y, d, 1)
+            ctx.fillRect(x, y, w, h)
          },
       }
    }
@@ -59,7 +63,7 @@ export let createDisplay = ({ canvas, getConfig }: DisplayProp) => {
 
          Array.from({ length: 24 }, (_, k24) => {
             // hour labels
-            let y = 30 * k24
+            let y = 8 * 4 * k24 // 8 pixels, 4 rows per hour
             drawer.drawText(ctx, { y, x: 0 }, ` ${k24}`.slice(-2), bg)
 
             // dots
