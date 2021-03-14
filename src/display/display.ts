@@ -39,7 +39,7 @@ export let createDisplay = ({ canvas, getConfig }: DisplayProp) => {
       let theme = getConfig().themeObject
       ctx.fillStyle = theme.open
       ctx.fillRect(x, y, w, h)
-      if (debug || x % 480 <= 2 * h) {
+      if (debug || x % canvas.width <= 14) {
          drawTimeIndicator()
       }
 
@@ -61,15 +61,18 @@ export let createDisplay = ({ canvas, getConfig }: DisplayProp) => {
       drawTimeIndicator = () => {
          let bg = getConfig().themeObject.textbg
 
-         Array.from({ length: 24 }, (_, k24) => {
+         Array.from({ length: 24 }, (_, k25) => {
             // hour labels
-            let y = 8 * 4 * k24 // 8 pixels, 4 rows per hour
-            drawer.drawText(ctx, { y, x: 0 }, ` ${k24}`.slice(-2), bg)
+            let y = 8 * 4 * k25 // 8 pixels, 4 rows per hour
+            drawer.drawText(ctx, { y, x: 0 }, ` ${k25}`.slice(-2), bg)
 
             // dots
             ctx.fillStyle = getConfig().themeObject.ruler
-            Array.from({ length: 1920 / 2 / 8 }, (_, k240) => {
-               ctx.fillRect(k240 * 8, y, 1, 1)
+            Array.from({ length: 1920 / 2 / 5 }, (_, k192) => {
+               ctx.fillRect(k192 * 5, y - 1, 1, 2)
+            })
+            Array.from({ length: 15 }, (_, k15) => {
+               ctx.fillRect(k15 * 60, y - 5, 1, 10)
             })
          })
       }
@@ -81,7 +84,7 @@ export let createDisplay = ({ canvas, getConfig }: DisplayProp) => {
       open,
       wipe,
       restore,
-      drawTimeRuler: () => {
+      drawTimeIndicator: () => {
          drawTimeIndicator()
       },
    }

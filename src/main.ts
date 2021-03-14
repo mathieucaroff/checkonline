@@ -43,7 +43,7 @@ export let main = async () => {
       if (config.clear) {
          localStorage.removeItem('image')
          displayLeft.wipe()
-         displayLeft.drawTimeRuler()
+         displayLeft.drawTimeIndicator()
          urlRemoveParam(location, 'clear')
       }
 
