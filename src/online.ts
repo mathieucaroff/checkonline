@@ -1,3 +1,5 @@
+import 'regenerator-runtime/runtime'
+
 import { Subscription } from 'rxjs'
 import { createObservableClock } from './clock/clock'
 import { parseConfig } from './config'
@@ -10,9 +12,13 @@ import { OnlineConfig } from './type/onlineConfig'
 import { loadImage } from './util/loadImage'
 import { urlRemoveParam } from './util/urlParam'
 
-export let main = async () => {
+main()
+
+export async function main() {
    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('./serviceworker.ts')
+      navigator.serviceWorker.register(new URL('serviceworker.ts', import.meta.url), {
+         type: 'module',
+      })
    }
 
    const setUpdateInterval = () => {
