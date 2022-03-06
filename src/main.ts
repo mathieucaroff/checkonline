@@ -11,8 +11,9 @@ import { loadImage } from './util/loadImage'
 import { urlRemoveParam } from './util/urlParam'
 
 export let main = async () => {
-   let now = Date.now()
-   let lastDay = now - (now % (86400 * 1000))
+   if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./serviceworker.ts')
+   }
 
    const setUpdateInterval = () => {
       clockSub.unsubscribe()
@@ -38,6 +39,10 @@ export let main = async () => {
    }
 
    let config = parseConfig(location)
+   console.info('config', config)
+
+   let now = Date.now() + config.compoundOffset * 1000
+   let lastDay = now - (now % (86400 * 1000))
 
    // Initialize the page
    let { canvasLeft, canvasRight } = initPage({ config, document, window })

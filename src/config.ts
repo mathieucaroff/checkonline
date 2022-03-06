@@ -61,8 +61,6 @@ export let parseConfig = (location: Location) => {
       themeObject: ({ theme, color }) => parseTheme({ theme: theme(), color: color() }),
    })
 
-   console.info('config', config)
-
    if (config.fast) {
       urlRemoveParam(location, 'speed')
       urlRemoveParam(location, 'fill')

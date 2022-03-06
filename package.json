@@ -6,7 +6,7 @@
    "version": "1.0.0",
    "scripts": {
       "build": "parcel build src/page.html -d public -o index.html",
-      "start": "parcel start src/page.html"
+      "serve": "parcel serve src/page.html"
    },
    "devDependencies": {
       "@types/node": "^13.9.1",
