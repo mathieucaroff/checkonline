@@ -5,8 +5,9 @@
    "license": "ISC",
    "version": "1.0.0",
    "scripts": {
-      "build": "parcel build src/online.html --public-url online.d",
-      "serve": "parcel serve src/online.html"
+      "build": "parcel build src/index.html --dist-dir public",
+      "mcabuild": "parcel build src/index.html --public-url online.d",
+      "serve": "parcel serve src/index.html"
    },
    "devDependencies": {
       "@parcel/packager-raw-url": "2.3.2",
