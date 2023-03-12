@@ -2,17 +2,18 @@
 /*/
 tmp/
 
-!/src/
 !/asset/
+!/src/
 
 # Files
 /.*
-*.log
-*.js
 
-!/.editorconfig
-!/.env
+# Log files
+*.log
+*-debug.log*
+*-error.log*
+
+*.local
+
 !/.gitignore
-!/.now.json
-!/.prettier*
-!/.yarnrc
+!/.prettierrc.*

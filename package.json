@@ -1,24 +1,27 @@
 {
-   "name": "online",
-   "description": "",
-   "repository": "https://github.com/mathieucaroff/online",
-   "license": "ISC",
-   "version": "1.0.0",
-   "scripts": {
-      "build": "parcel build src/index.html --dist-dir public",
-      "mcabuild": "parcel build src/index.html --public-url online.d",
-      "serve": "parcel serve src/index.html"
-   },
-   "devDependencies": {
-      "@parcel/packager-raw-url": "2.3.2",
-      "@parcel/transformer-webmanifest": "2.3.2",
-      "@types/node": "^13.9.1",
-      "parcel": "^2.3.2",
-      "prettier": "^2.5.1",
-      "ts-node": "^8.6.2",
-      "typescript": "^4.6.2"
-   },
-   "dependencies": {
-      "rxjs": "^7.0.0-beta.0"
-   }
+  "name": "checkonline",
+  "description": "Network connectivity watcher for the browser",
+  "repository": "https://github.com/mathieucaroff/checkonline",
+  "license": "ISC",
+  "version": "2.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "@trivago/prettier-plugin-sort-imports": "^4.1.1",
+    "prettier": "^2.8.4",
+    "typescript": "^4.9.3",
+    "vite": "^4.1.0",
+    "vite-plugin-pwa": "^0.14.4",
+    "vitest": "^0.29.2",
+    "workbox-routing": "^6.5.4",
+    "workbox-strategies": "^6.5.4"
+  },
+  "dependencies": {
+    "@popperjs/core": "^2.11.6",
+    "bootstrap": "^5.2.3"
+  }
 }

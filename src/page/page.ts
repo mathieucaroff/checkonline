@@ -1,33 +1,25 @@
-import { OnlineConfig } from '../type/onlineConfig'
+import { default as packageInfo } from '../../package.json'
+import { githubCornerHTML } from '../lib/githubCorner'
+import { h } from '../lib/hyper'
+import './style.css'
+import '/node_modules/bootstrap/dist/css/bootstrap.min.css'
 
-export interface PageProp {
-   getConfig: () => OnlineConfig
-   document: Document
+function drawarea() {
+  return h('canvas', {
+    className: 'drawarea',
+    width: 900, // 15 * 60
+    height: 768, // 8 * 24 * 4
+  })
 }
 
-export let createPage = ({ document, getConfig }: PageProp) => {
-   let status: 'unknown' | 'connected' | 'disconnected' = 'unknown'
+export function createPage() {
+  const canvasLeft = drawarea()
+  const canvasRight = drawarea()
+  const content = h('div', {}, [
+    h('i', { innerHTML: githubCornerHTML(packageInfo.repository) }),
+    h('h1', { textContent: document.title }),
+    h('div', {}, [canvasLeft, canvasRight]),
+  ])
 
-   let favicon = document.getElementById('favicon') as HTMLLinkElement
-   let faviconConnected = document.getElementById('faviconConnected') as HTMLLinkElement
-   let faviconDisconnected = document.getElementById('faviconDisconnected') as HTMLLinkElement
-
-   return {
-      markConnected: () => {
-         if (status !== 'connected') {
-            status = 'connected'
-            favicon.href = faviconConnected.href
-            document.title = getConfig().connectedTitle
-            document.documentElement.style.backgroundColor = getConfig().themeObject.connected
-         }
-      },
-      markOffline: () => {
-         if (status !== 'disconnected') {
-            status = 'disconnected'
-            favicon.href = faviconDisconnected.href
-            document.title = getConfig().disconnectedTitle
-            document.documentElement.style.backgroundColor = getConfig().themeObject.disconnected
-         }
-      },
-   }
+  return { canvasLeft, canvasRight, content }
 }

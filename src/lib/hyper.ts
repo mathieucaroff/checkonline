@@ -9,17 +9,17 @@
  * @param destination the object that will be written to
  * @param source the object whose data will be read and copied
  */
-function deepUpdate(destination, source) {
-   Object.entries(source).forEach(([key, value]) => {
-      if (typeof value === 'object' && value !== null) {
-         if (typeof destination[key] !== 'object' || destination[key] === null) {
-            destination[key] = {}
-         }
-         deepUpdate(destination[key], value)
-      } else {
-         destination[key] = value
+function deepUpdate(destination: any, source: any) {
+  Object.entries(source).forEach(([key, value]) => {
+    if (typeof value === 'object' && value !== null) {
+      if (typeof destination[key] !== 'object' || destination[key] === null) {
+        destination[key] = {}
       }
-   })
+      deepUpdate(destination[key], value)
+    } else {
+      destination[key] = value
+    }
+  })
 }
 
 /**
@@ -30,45 +30,45 @@ function deepUpdate(destination, source) {
  * @param children An array of children elements
  */
 function h<K extends keyof HTMLElementTagNameMap>(
-   name: K,
-   attribute?: Partial<HTMLElementTagNameMap[K]> & Record<string, any>,
-   children?: Element[],
+  name: K,
+  attribute?: Partial<HTMLElementTagNameMap[K]> & Record<string, any>,
+  children?: Element[],
 ): HTMLElementTagNameMap[K]
 
 function h<K extends keyof HTMLElementTagNameMap>(
-   name: K,
-   attribute?: Record<string, any>,
-   children?: Element[],
+  name: K,
+  attribute?: Record<string, any>,
+  children?: Element[],
 ): HTMLElementTagNameMap[K]
 
 function h<T extends Element = HTMLElement>(
-   name: string,
-   attribute?: Record<string, any>,
-   children?: Element[],
+  name: string,
+  attribute?: Record<string, any>,
+  children?: Element[],
 ): T
 
 function h<K extends keyof HTMLElementTagNameMap>(
-   name: K,
-   attribute: Partial<HTMLElementTagNameMap[K]> & Record<string, any> = {},
-   children: Element[] = [],
+  name: K,
+  attribute: Partial<HTMLElementTagNameMap[K]> & Record<string, any> = {},
+  children: Element[] = [],
 ) {
-   let elem = document.createElement<K>(name)
+  let elem: any = document.createElement<K>(name)
 
-   Object.entries(attribute).forEach(([name, value]) => {
-      if (elem[name] === undefined) {
-         elem.setAttribute(name, value)
-      } else if (typeof elem[name] === 'object' && elem[name] !== null) {
-         deepUpdate(elem[name], value)
-      } else {
-         elem[name] = value
-      }
-   })
+  Object.entries(attribute).forEach(([name, value]) => {
+    if (elem[name] === undefined) {
+      elem.setAttribute(name, value)
+    } else if (typeof elem[name] === 'object' && elem[name] !== null) {
+      deepUpdate(elem[name], value)
+    } else {
+      elem[name] = value
+    }
+  })
 
-   children.forEach((child) => {
-      elem.appendChild(child)
-   })
+  children.forEach((child) => {
+    elem.appendChild(child)
+  })
 
-   return elem
+  return elem
 }
 
 export { h }

@@ -1,35 +1,37 @@
 /**
  * Test whether internet is available by loading an image
  */
-
-import { OnlineConfig } from '../type/onlineConfig'
+import { urlRemoveSearchAndHashParam } from '../lib/urlParameter'
+import { CheckOnlineConfig } from '../type'
 import { loadImage } from '../util/loadImage'
-import { urlRemoveParam } from '../util/urlParam'
+import { parseTimeToMs } from '../util/parseTimeToMs'
 
-export let pingTest = (config: OnlineConfig, location: Location) => {
-   let imageUrlList = config.targetList.split('==')
-   let startTime = new Date().getTime()
+export let pingTest = (config: CheckOnlineConfig, location: Location) => {
+  let imageUrlList = config.targetList.split('==')
+  let startTime = new Date().getTime()
 
-   return new Promise<number>((resolve, reject) => {
-      if (config.fail) {
-         urlRemoveParam(location, 'fail')
-         setTimeout(() => {
-            reject('fake timeout')
-         }, config.timeout)
-         return
-      }
+  return new Promise<number>((resolve, reject) => {
+    let timeout = parseTimeToMs(config.reactivity)
 
-      let handle = () => {
-         clearTimeout(errorTimeoutId)
-         resolve(new Date().getTime() - startTime)
-      }
+    if (config.fail) {
+      urlRemoveSearchAndHashParam(location, 'fail')
+      setTimeout(() => {
+        reject('fake timeout')
+      }, timeout)
+      return
+    }
 
-      imageUrlList.forEach((imageUrl) => {
-         loadImage(imageUrl + '?t=' + (startTime % (86400 * 100))).then(handle)
-      })
+    let handle = () => {
+      clearTimeout(errorTimeoutId)
+      resolve(new Date().getTime() - startTime)
+    }
 
-      let errorTimeoutId = setTimeout(() => {
-         reject('timeout')
-      }, config.timeout)
-   })
+    imageUrlList.forEach((imageUrl) => {
+      loadImage(imageUrl + '?t=' + (startTime % (86400 * 100))).then(handle)
+    })
+
+    let errorTimeoutId = setTimeout(() => {
+      reject('timeout')
+    }, timeout)
+  })
 }

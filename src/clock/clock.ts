@@ -1,40 +1,45 @@
 /**
- * Clock
+ * createClock
  *
- * Produce a clock which tries to tick every **p** ms and accepts to skip ticks
- * if for some reason, it has run late. For each tick, it outputs the reached
- * target time. This time usually is the previous time incremeted by the period,
- * but it may be more if the clock has run late.
- * (because e.g. the page's JS was paused by the web browser)
+ * @param period - time between two ticks in ms
+ * @param offset - offset applied to the time passed to the callback function,
+ *                 in ms
+ * @param callback - function called every `period` of time. It receives the
+ *                   exact time at which it was scheduled to be called,
+ *                   eventhough the call it receives may happen later than that
+ *                   time.
+ * @returns a clock object containing the clock disposal function
  */
+export let createClock = (
+  period: number,
+  offset: number,
+  callback: (t: number, lastT?: number) => void,
+) => {
+  let timeoutId: NodeJS.Timeout
+  let initialTime = Date.now()
+  let lastTime: number | undefined
 
-import { Observable } from 'rxjs'
+  let tick = (counter: number) => {
+    let now = Date.now()
+    let targetTime = initialTime + counter * period
+    let delta = targetTime - now
+    let increment = Math.max(1, delta / period)
+    timeoutId = setTimeout(() => tick(counter + increment), delta)
 
-/**
- * createObservableClock
- *
- * @param period time between two ticks in ms
- * @returns {Observable} the observable clock, paused until a .subscribe occures
- */
-export let createObservableClock = (period: number) => {
-   return new Observable<number>((subscriber) => {
-      let timeoutId: NodeJS.Timeout
-      let initialTime = Date.now()
+    callback(targetTime - offset, lastTime)
+    lastTime = targetTime - offset
+  }
 
-      let tick = () => {
-         let now = Date.now()
-         let tickCount = Math.floor((now - initialTime) / period)
-         let reachedTime = initialTime + tickCount * period
-         let targetDelta = reachedTime + period - now
-         subscriber.next(reachedTime)
+  timeoutId = setTimeout(() => tick(0), 0)
 
-         timeoutId = setTimeout(tick, targetDelta)
-      }
-
-      timeoutId = setTimeout(tick, 0)
-
-      return () => {
-         clearTimeout(timeoutId)
-      }
-   })
+  return {
+    /**
+     * The function to dispose of the clock
+     */
+    dispose: () => {
+      clearTimeout(timeoutId)
+    },
+  }
 }
+
+export type Clock = ReturnType<typeof createClock>
