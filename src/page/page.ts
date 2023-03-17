@@ -101,8 +101,8 @@ export function createPage(
   const enableCustomTitle = configStorage.getItem('enableCustomTitle')
   const titleCheckboxCallback = () => {
     if (titleCheckbox.checked) {
-      modalBody.insertBefore(titleConnectedAndLabel, clearButton)
-      modalBody.insertBefore(titleDisconnectedAndLabel, clearButton)
+      modalBody.appendChild(titleConnectedAndLabel)
+      modalBody.appendChild(titleDisconnectedAndLabel)
       configStorage.setItem('enableCustomTitle', true)
       configStorage.setItem('connectedTitle', config.title)
       configStorage.setItem('disconnectedTitle', config.title)
@@ -167,15 +167,6 @@ export function createPage(
     titleDisconnected,
   ])
 
-  const clearButton = h('button', {
-    type: 'button',
-    className: 'btn btn-secondary',
-    textContent: 'Clear',
-    onclick: () => {
-      action.clear()
-    },
-  })
-
   let modalBody: HTMLDivElement
 
   const menuModal =
@@ -217,7 +208,6 @@ export function createPage(
                 textContent: 'Enable changing the title upon connectivity change',
               }),
             ]),
-            clearButton,
           ])),
         ]),
       ]),
