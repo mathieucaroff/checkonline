@@ -1,6 +1,4 @@
 import { THEME } from '../theme'
-import { CheckOnlineConfig } from '../type'
-import { day } from '../util/day'
 import { divmod } from '../util/divmod'
 import { getDrawText } from '../util/drawText'
 import { getContext2d } from '../util/getContext'
@@ -42,8 +40,11 @@ export let createDisplay = ({ canvas, dayName }: DisplayProp) => {
     let [w, h] = divmod(period + 8 - 1, 8) // -1
     h += 1 // +1
 
+    const fillArea = () => {
+      ctx.fillRect(x, y, w, h)
+    }
+
     ctx.fillStyle = THEME.open
-    ctx.fillRect(x, y, w, h)
     if (x % 60 === 1) {
       me.drawTimeIndicator()
     }
@@ -51,15 +52,15 @@ export let createDisplay = ({ canvas, dayName }: DisplayProp) => {
     return {
       closeSuccess: () => {
         ctx.fillStyle = THEME.success
-        ctx.fillRect(x, y, w, h)
+        fillArea()
       },
       closeError: () => {
         ctx.fillStyle = THEME.failure
-        ctx.fillRect(x, y, w, h)
+        fillArea()
       },
       closeCancel: () => {
         ctx.fillStyle = THEME.cancel
-        ctx.fillRect(x, y, w, h)
+        fillArea()
       },
     }
   }

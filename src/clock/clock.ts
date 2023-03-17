@@ -7,15 +7,15 @@
  * @param callback - function called every `period` of time. It receives the
  *                   exact time at which it was scheduled to be called,
  *                   eventhough the call it receives may happen later than that
- *                   time. The `oudated` boolean is true whenever the clock has
- *                   run late and is speeding to catch up the time.
+ *                   time. The `skip` parameter tells how long a time the clock
+ *                   has decided to skip to be back on time
  * @returns a clock object containing the clock disposal function
  */
 export let createClock = (
   period: number,
   offset: number,
   punctualityThreshold: number,
-  callback: (t: number, lastT?: number, outdated?: boolean) => void,
+  callback: (t: number, lastT: number | undefined, skip: number) => void,
 ) => {
   let timeoutId: NodeJS.Timeout
   let initialTime = Date.now()
@@ -25,9 +25,17 @@ export let createClock = (
     let now = Date.now()
     let targetTime = initialTime + counter * period
     let delta = targetTime - now
+    let skip = 0
+
+    if (delta <= -punctualityThreshold) {
+      counter = Math.floor((now - initialTime) / period)
+      skip = now - targetTime
+      targetTime = initialTime + counter * period
+    }
 
     timeoutId = setTimeout(() => tick(counter + 1), delta)
-    callback(targetTime - offset, lastTime, delta <= -punctualityThreshold)
+
+    callback(targetTime - offset, lastTime, skip)
     lastTime = targetTime - offset
   }
 

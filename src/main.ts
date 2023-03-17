@@ -60,16 +60,16 @@ function main() {
    * ping
    * @param time - time to use to write the ping result to the canvas
    */
-  const ping = (time: number, lastTime?: number, outdated?: boolean) => {
+  const ping = (time: number, lastTime: number | undefined, skip: number) => {
     if (lastTime && dayOf(lastTime) !== dayOf(time)) {
       handleEndOfDay(new Date(lastTime))
     }
     lastTime = time
-    const closer = displayLeft.open(time, config.period)
-    if (outdated) {
-      closer.closeCancel()
+    if (skip > 0) {
+      displayLeft.open(time, `${skip}ms`).closeCancel()
       return
     }
+    const closer = displayLeft.open(time, config.period)
     pingTest(config, location, configStorage)
       .then(() => {
         closer.closeSuccess()
