@@ -7,7 +7,7 @@ export default defineConfig({
   test: {},
   plugins: [
     VitePWA({
-      devOptions: { enabled: true },
+      // devOptions: { enabled: true },
       registerType: 'autoUpdate',
       manifest: {
         theme_color: '#000',

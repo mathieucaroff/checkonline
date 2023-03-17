@@ -1,3 +1,4 @@
+import { KeyStorage } from '../storage/storage'
 import { InfoObject, indirectResolve } from './indirectResolver'
 
 export let ensureSpacelessURL = (location: Location) => {
@@ -70,7 +71,13 @@ export let resolveSearchAndHash = <T>(location: Location, defaultConfig: InfoObj
   return indirectResolve<T>(infoObject)
 }
 
-export let urlRemoveSearchAndHashParam = (location: Location, param: string) => {
+export let urlRemoveSearchAndHashParamAndLocalStorage = (
+  location: Location,
+  keyStorage: KeyStorage,
+  param: string,
+) => {
+  keyStorage.removeItem(param)
+
   const hashtagRegex__ = `#${param}(=[^#]*)?($|(#.*))`
   const searchRegex = `[?&]${param}(=[^&]*)?($|(&.*))`
   let newHref = location.href.replace(new RegExp(`${hashtagRegex__}|${searchRegex}`, 'g'), '$3$6')

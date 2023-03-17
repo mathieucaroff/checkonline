@@ -7,13 +7,15 @@
  * @param callback - function called every `period` of time. It receives the
  *                   exact time at which it was scheduled to be called,
  *                   eventhough the call it receives may happen later than that
- *                   time.
+ *                   time. The `oudated` boolean is true whenever the clock has
+ *                   run late and is speeding to catch up the time.
  * @returns a clock object containing the clock disposal function
  */
 export let createClock = (
   period: number,
   offset: number,
-  callback: (t: number, lastT?: number) => void,
+  punctualityThreshold: number,
+  callback: (t: number, lastT?: number, outdated?: boolean) => void,
 ) => {
   let timeoutId: NodeJS.Timeout
   let initialTime = Date.now()
@@ -23,10 +25,9 @@ export let createClock = (
     let now = Date.now()
     let targetTime = initialTime + counter * period
     let delta = targetTime - now
-    let increment = Math.max(1, delta / period)
-    timeoutId = setTimeout(() => tick(counter + increment), delta)
 
-    callback(targetTime - offset, lastTime)
+    timeoutId = setTimeout(() => tick(counter + 1), delta)
+    callback(targetTime - offset, lastTime, delta <= -punctualityThreshold)
     lastTime = targetTime - offset
   }
 

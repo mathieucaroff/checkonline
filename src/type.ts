@@ -1,3 +1,5 @@
+import { KeyStorage } from './storage/storage'
+
 export interface Pair {
   x: number
   y: number
@@ -20,6 +22,11 @@ export interface CheckOnlineConfig {
    * Duration past which a request against the target(s) is considered to have failed
    */
   reactivity: string
+  /**
+   * If the clock runs late past the punctualityThreshold, it'll include the
+   * "outdated" flag in its calls to the callback function
+   */
+  punctualityThreshold: string
   // connection
   /**
    * List of image to load to check the connection status.
@@ -46,3 +53,25 @@ export interface CheckOnlineConfig {
    */
   right: string
 }
+
+export interface ActionObject {
+  clear: () => void
+  setPeriod: (period: string) => void
+  setReactivity: (reactivity: string) => void
+}
+
+export type Status = 'unknown' | 'connected' | 'disconnected'
+
+export interface State {
+  status: Status
+}
+
+export interface SavedConfig {
+  period: string
+  reactivity: string
+  enableCustomTitle: boolean
+  connectedTitle: string
+  disconnectedTitle: string
+}
+
+export type ConfigStorage = KeyStorage<SavedConfig>

@@ -1,13 +1,20 @@
 @import './font.css';
 
-h1 {
-  font-family: SquareFont, 'Courier New', Courier, monospace;
-  font-size: 260%;
+* {
+  font-family: 'Courier New', Courier, monospace;
 }
 
 body {
   /* https://developer.mozilla.org/en-US/docs/Web/CSS/overscroll-behavior */
   overscroll-behavior: none;
+}
+
+h1 {
+  font-size: 260%;
+}
+
+.square {
+  font-family: SquareFont;
 }
 
 .drawarea {
@@ -19,4 +26,12 @@ body {
 
 .inline {
   display: inline;
+}
+
+.infomessage {
+  margin-left: 10px;
+}
+
+.tooltip.infomessagetooltip {
+  font-style: italic;
 }

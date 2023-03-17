@@ -1,19 +1,10 @@
+import { THEME } from '../theme'
 import { CheckOnlineConfig } from '../type'
+import { day } from '../util/day'
 import { divmod } from '../util/divmod'
 import { getDrawText } from '../util/drawText'
 import { getContext2d } from '../util/getContext'
 import { parseTimeToMs } from '../util/parseTimeToMs'
-
-const THEME = {
-  disconnected: '#f77',
-  connected: '#000',
-  background: '#111',
-  ruler: '#ccc',
-  textbg: '#ccc',
-  open: '#dd2',
-  success: '#5c5',
-  failure: '#e55',
-}
 
 let getHeadLocation = (p: number) => {
   let [q, y8] = divmod(p, 8) // eigth of seconds ~ x coordinate
@@ -23,18 +14,15 @@ let getHeadLocation = (p: number) => {
 }
 
 export interface DisplayProp {
-  document: Document
   canvas: HTMLCanvasElement
-  config: CheckOnlineConfig
+  /**
+   * dayName - A string specifying the current day, to be written at the top left corner of the display
+   */
+  dayName: string
 }
 
-export let createDisplay = ({ document, canvas, config }: DisplayProp) => {
+export let createDisplay = ({ canvas, dayName }: DisplayProp) => {
   let { ctx } = getContext2d(canvas)
-  let status: 'unknown' | 'connected' | 'disconnected' = 'unknown'
-
-  let favicon = document.getElementById('favicon') as HTMLLinkElement
-  let faviconConnected = document.getElementById('faviconConnected') as HTMLLinkElement
-  let faviconDisconnected = document.getElementById('faviconDisconnected') as HTMLLinkElement
 
   const restore = (image: HTMLImageElement) => {
     ctx.drawImage(image, 0, 0)
@@ -45,9 +33,9 @@ export let createDisplay = ({ document, canvas, config }: DisplayProp) => {
     ctx.fillRect(0, 0, canvas.width, canvas.height)
   }
 
-  const open = (targetTime: number) => {
+  const open = (targetTime: number, textPeriod: string) => {
     let pixelTime = (8 * targetTime) / 1000
-    let period = (8 * parseTimeToMs(config.period)) / 1000
+    let period = (8 * parseTimeToMs(textPeriod)) / 1000
 
     pixelTime -= pixelTime % period
     let { x, y } = getHeadLocation(pixelTime)
@@ -64,26 +52,14 @@ export let createDisplay = ({ document, canvas, config }: DisplayProp) => {
       closeSuccess: () => {
         ctx.fillStyle = THEME.success
         ctx.fillRect(x, y, w, h)
-
-        if (status !== 'connected') {
-          status = 'connected'
-          favicon.href = faviconConnected.href
-          document.title = config.connectedTitle
-          document.documentElement.style.backgroundColor = THEME.connected
-          document.body.style.backgroundColor = THEME.connected
-        }
       },
       closeError: () => {
         ctx.fillStyle = THEME.failure
         ctx.fillRect(x, y, w, h)
-
-        if (status !== 'disconnected') {
-          status = 'disconnected'
-          favicon.href = faviconDisconnected.href
-          document.title = config.disconnectedTitle
-          document.documentElement.style.backgroundColor = THEME.disconnected
-          document.body.style.backgroundColor = THEME.disconnected
-        }
+      },
+      closeCancel: () => {
+        ctx.fillStyle = THEME.cancel
+        ctx.fillRect(x, y, w, h)
       },
     }
   }
@@ -96,7 +72,10 @@ export let createDisplay = ({ document, canvas, config }: DisplayProp) => {
       Array.from({ length: 25 }, (_, k25) => {
         // hour labels
         let y = 8 * 4 * k25 // 8 pixels, 4 rows per hour
-        drawer.drawText(ctx, { y, x: 0 }, ` ${k25}`.slice(-2), bg)
+        if (k25 > 0) {
+          // position 0 is reserved for the date of the day
+          drawer.drawText(ctx, { y, x: 0 }, ` ${k25}`.slice(-2), bg)
+        }
 
         // dots
         ctx.fillStyle = THEME.ruler
@@ -107,6 +86,9 @@ export let createDisplay = ({ document, canvas, config }: DisplayProp) => {
           ctx.fillRect(k15 * 60, y - 5, 1, 10)
         })
       })
+
+      // date: "year-month-day"
+      drawer.drawText(ctx, { y: 0, x: 0 }, dayName, bg)
     }
 
     me.drawTimeIndicator()
@@ -116,6 +98,9 @@ export let createDisplay = ({ document, canvas, config }: DisplayProp) => {
     open,
     wipe,
     restore,
+    setDayName: (newName: string) => {
+      dayName = newName
+    },
     drawTimeIndicator: () => {},
   }
 
