@@ -2,12 +2,15 @@
  * Test whether internet is available by loading an image
  */
 import { urlRemoveSearchAndHashParamAndLocalStorage } from '../lib/urlParameter'
-import { KeyStorage } from '../storage/storage'
-import { CheckOnlineConfig } from '../type'
+import { CheckOnlineConfig, ConfigStorage } from '../type'
 import { loadImage } from '../util/loadImage'
 import { parseTimeToMs } from '../util/parseTimeToMs'
 
-export let pingTest = (config: CheckOnlineConfig, location: Location, keyStorage: KeyStorage) => {
+export let pingTest = (
+  config: CheckOnlineConfig,
+  configStorage: ConfigStorage,
+  location: Location,
+) => {
   let imageUrlList = config.targetList.split('==')
   let startTime = new Date().getTime()
 
@@ -15,7 +18,7 @@ export let pingTest = (config: CheckOnlineConfig, location: Location, keyStorage
     let timeout = parseTimeToMs(config.reactivity)
 
     if (config.fail) {
-      urlRemoveSearchAndHashParamAndLocalStorage(location, keyStorage, 'fail')
+      urlRemoveSearchAndHashParamAndLocalStorage(location, configStorage, 'fail')
       setTimeout(() => {
         reject('fake timeout')
       }, timeout)

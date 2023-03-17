@@ -72,6 +72,8 @@ export interface SavedConfig {
   enableCustomTitle: boolean
   connectedTitle: string
   disconnectedTitle: string
+  clear: string
+  fail: string
 }
 
 export type ConfigStorage = KeyStorage<SavedConfig>

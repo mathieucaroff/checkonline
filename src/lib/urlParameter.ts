@@ -1,4 +1,4 @@
-import { KeyStorage } from '../storage/storage'
+import { ConfigStorage, SavedConfig } from '../type'
 import { InfoObject, indirectResolve } from './indirectResolver'
 
 export let ensureSpacelessURL = (location: Location) => {
@@ -73,10 +73,10 @@ export let resolveSearchAndHash = <T>(location: Location, defaultConfig: InfoObj
 
 export let urlRemoveSearchAndHashParamAndLocalStorage = (
   location: Location,
-  keyStorage: KeyStorage,
-  param: string,
+  configStorage: ConfigStorage,
+  param: keyof SavedConfig,
 ) => {
-  keyStorage.removeItem(param)
+  configStorage.removeItem(param)
 
   const hashtagRegex__ = `#${param}(=[^#]*)?($|(#.*))`
   const searchRegex = `[?&]${param}(=[^&]*)?($|(&.*))`

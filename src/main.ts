@@ -70,7 +70,7 @@ function main() {
       return
     }
     const closer = displayLeft.open(time, config.period)
-    pingTest(config, location, configStorage)
+    pingTest(config, configStorage, location)
       .then(() => {
         closer.closeSuccess()
 

@@ -1,5 +1,4 @@
 import { ensureSpacelessURL, resolveSearchAndHash } from './lib/urlParameter'
-import { KeyStorage } from './storage/storage'
 import { CheckOnlineConfig, ConfigStorage } from './type'
 import { day } from './util/day'
 import { parseTimeToMs } from './util/parseTimeToMs'
