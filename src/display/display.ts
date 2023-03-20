@@ -1,3 +1,6 @@
+/**
+ * Everything related to rendering on a canvas is handled in the display module
+ */
 import { THEME } from '../theme'
 import { divmod } from '../util/divmod'
 import { getDrawText } from '../util/drawText'
