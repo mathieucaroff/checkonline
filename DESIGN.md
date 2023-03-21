@@ -121,7 +121,7 @@ The periodicity at which the primary tab must save the image is every **minute**
 
 #### Loading the history image
 
-Keeping an up-to-date image in the case where multiple tabs are open can be tricky. If the current tab turns out to be the primary tab, then it can confidently load the image from the localStorage and start drawing on it. 
+Keeping an up-to-date image in the case where multiple tabs are open can be tricky. If the current tab turns out to be the primary tab, then it can confidently load the image from the localStorage and start drawing on it.
 
 ~~For non-primary tab, they must send a helloNotification to the service worker. The service worker will then send an exportHistoryImageRequest to the primary tab to tell them to export their image to the localStorage. Once done, the primary tab will respond with an exportHistoryImageRequestCompleted message to the service worker, which will then~~
 
@@ -131,15 +131,22 @@ If the non-primary tab receives no `historyImageSaved` message after five second
 
 #### End of the current day
 
-When the current day ends, the image of the day should be saved to the localStorage, then the canvas should be wiped and the frames should be drawn.
+When the current day ends, the prime tab should save the image of the day to the localStorage and broadcast a `historyImageSaved` message. Then the canvas should be wiped, the frames should be drawn and the tab should start drawing.
+
+The secondary tabs should just wipe the canvas and start drawing right away, discarding their version of the history image of the past day.
 
 ### History of previous days
 
 _End of the current day_
 
-When the current day ends, the list of selectable days should be updated to include the ending day. This will be done by reloading the list.
+When the current day ends, the list of selectable days should be updated to include the ending day. For this end, for the primary tab:
 
-If the previous day display shows a day other than the current one, then there's nothing more to do. If the previous day display shows the day right before the current one, then it should be switched to displaying the current day, and the select should be set to the current day.
+1. The list of saved days should be updated, by reloading it from the localStorage.
+2. If the previous day display shows a day other than the current one, then there's nothing more to do. If the previous day display shows the day right before the current one, then it should be switched to displaying the current day, and the select should be set to the current day.
+
+For secondary tabs, the two above operations should be carried upon receiving a `historyImageSaved` message.
+
+If a date with no associated image is selected, the previous-days-canvas should display a canvas should just display an image with only the frame drawn. The date selector should display the non-existing date as being selected. As soon as any other date is selected, it should remove the non-existing date from the options.
 
 ### Configuration
 
