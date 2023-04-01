@@ -30,6 +30,9 @@ function main() {
     setReactivity(reactivity) {
       updateConfig({ ...config, reactivity })
     },
+    setArchiveDisplayDate(date) {
+      updateConfig({ ...config, right: date })
+    },
   }
 
   const state: State = { status: 'unknown' }

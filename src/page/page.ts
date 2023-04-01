@@ -3,6 +3,7 @@ import { githubCornerHTML } from '../lib/githubCorner'
 import { h } from '../lib/hyper'
 import { ActionObject, CheckOnlineConfig, ConfigStorage, State } from '../type'
 import { parseTimeToMs } from '../util/parseTimeToMs'
+import { day } from '../util/time'
 import './style.css'
 import '/node_modules/bootstrap/dist/css/bootstrap.min.css'
 import { Tooltip } from 'bootstrap'
@@ -28,19 +29,21 @@ export function createPage(
   const canvasRight = drawarea()
 
   // GUI
-  const configureButton = h('button', {
-    type: 'button',
-    className: 'btn btn-secondary square',
-    textContent: 'Configure',
-    dataset: {
-      bsToggle: 'modal',
-      bsTarget: '#menuModal',
-    },
-    style: {
-      marginLeft: '556px',
-      marginTop: '-8px',
-    },
-  })
+  const configureButton = h('span', { className: 'square' }, [
+    h('button', {
+      type: 'button',
+      className: 'btn btn-secondary',
+      textContent: 'Configure',
+      dataset: {
+        bsToggle: 'modal',
+        bsTarget: '#menuModal',
+      },
+      style: {
+        marginLeft: '556px',
+        marginTop: '-8px',
+      },
+    }),
+  ])
 
   // Menu
   const getTimeOptionArray = (selectedTimeMs: number) =>
@@ -213,10 +216,56 @@ export function createPage(
       ]),
     ])
 
+  const dateOptionList: string[] = []
+  Object.keys(localStorage).forEach((key) => {
+    const m = key.match(/^image(\d\d\d\d-\d\d-\d\d)$/)
+    if (m) {
+      const date = m[1]
+      if (date !== day(new Date())) {
+        dateOptionList.push(date.replaceAll('-', ' '))
+      }
+    }
+  })
+
+  const handleMouseDown = () => {
+    dateSelectorInput.value = ''
+  }
+  const handleDateSelectorMouseover = () => {
+    dateSelectorInput.focus()
+  }
+  const handleDateSelectorInput = () => {
+    const { value } = dateSelectorInput
+    if (value) {
+      action.setArchiveDisplayDate(value.replaceAll(' ', '-'))
+    }
+  }
+
+  const dateSelectorInput = h('input', {
+    className: 'form-control archive-date-selector date-selector',
+    list: 'dateSelectorOptions',
+    placeholder: 'Archive',
+  })
+  dateSelectorInput.addEventListener('mouseover', handleDateSelectorMouseover)
+  dateSelectorInput.addEventListener('mousedown', handleMouseDown)
+  dateSelectorInput.addEventListener('input', handleDateSelectorInput)
+
+  const dateSelector = h('span', {}, [
+    dateSelectorInput,
+    h(
+      'datalist',
+      { id: 'dateSelectorOptions' },
+      dateOptionList.map((date) => h('option', { value: date })),
+    ),
+  ])
+
   // bringing all parts of the page together
   const content = h('div', { id: 'page' }, [
     h('i', { innerHTML: githubCornerHTML(packageInfo.repository) }),
-    h('h1', { id: 'title', className: 'square', textContent: config.title }, [configureButton]),
+    h('span', {}, [
+      h('h1', { id: 'title', className: 'square', textContent: config.title }),
+      configureButton,
+      dateSelector,
+    ]), // header
     menuModal,
     h('div', { id: 'display' }, [canvasLeft, canvasRight]),
   ])

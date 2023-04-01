@@ -55,7 +55,7 @@ function h<K extends keyof HTMLElementTagNameMap>(
   let elem: any = document.createElement<K>(name)
 
   Object.entries(attribute).forEach(([name, value]) => {
-    if (elem[name] === undefined) {
+    if (elem[name] === undefined || name === 'list') {
       elem.setAttribute(name, value)
     } else if (typeof elem[name] === 'object' && elem[name] !== null) {
       deepUpdate(elem[name], value)

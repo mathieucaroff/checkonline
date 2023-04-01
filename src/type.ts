@@ -58,6 +58,7 @@ export interface ActionObject {
   clear: () => void
   setPeriod: (period: string) => void
   setReactivity: (reactivity: string) => void
+  setArchiveDisplayDate: (date: string) => void
 }
 
 export type Status = 'unknown' | 'connected' | 'disconnected'
