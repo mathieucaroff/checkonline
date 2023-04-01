@@ -17,7 +17,7 @@ export let createClock = (
   punctualityThreshold: number,
   callback: (t: number, lastT: number | undefined, skip: number) => void,
 ) => {
-  let timeoutId: NodeJS.Timeout
+  let timeoutId: ReturnType<typeof setTimeout>
   let initialTime = Date.now()
   let lastTime: number | undefined
 

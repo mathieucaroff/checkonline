@@ -9,8 +9,9 @@ body {
   overscroll-behavior: none;
 }
 
-h1 {
+h1, #title {
   font-size: 260%;
+  margin: 0;
 }
 
 .square {

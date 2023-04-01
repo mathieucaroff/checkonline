@@ -1,7 +1,7 @@
 import { ensureSpacelessURL, resolveSearchAndHash } from './lib/urlParameter'
 import { CheckOnlineConfig, ConfigStorage } from './type'
-import { day } from './util/day'
 import { parseTimeToMs } from './util/parseTimeToMs'
+import { day } from './util/time'
 
 export let parseConfig = (configStorage: ConfigStorage, location: Location) => {
   ensureSpacelessURL(location)

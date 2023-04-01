@@ -1,4 +1,4 @@
-import { day } from '../util/day'
+import { day } from '../util/time'
 
 export let createImageStorage = () => {
   let imageName = (time: Date) => `image${day(time)}`

@@ -9,9 +9,9 @@ import { createImageStorage } from './storage/imageStorage'
 import { createKeyStorage } from './storage/storage'
 import { THEME } from './theme'
 import { ActionObject, CheckOnlineConfig, SavedConfig, State } from './type'
-import { day, dayOf } from './util/day'
 import { loadImage } from './util/loadImage'
 import { parseTimeToMs } from './util/parseTimeToMs'
+import { day, dayOf } from './util/time'
 
 function main() {
   const oneDay = 86_400_000
@@ -22,7 +22,7 @@ function main() {
     clear() {
       imageStorage.removeImage(now())
       displayLeft.wipe()
-      displayLeft.drawTimeIndicator()
+      displayLeft.drawWireframe()
     },
     setPeriod(period) {
       updateConfig({ ...config, period })
@@ -100,7 +100,7 @@ function main() {
     console.log(`handleEndOfDay (${day(currentDay)})`)
     displayLeft.wipe()
     displayLeft.setDayName(day(new Date()))
-    displayLeft.drawTimeIndicator()
+    displayLeft.drawWireframe()
     updateConfig(parseConfig(configStorage, location))
   }
 
@@ -139,7 +139,7 @@ function main() {
     } else {
       displayRight.wipe()
       displayRight.setDayName(day(new Date(Date.now() - oneDay)))
-      displayRight.drawTimeIndicator()
+      displayRight.drawWireframe()
     }
   }
 

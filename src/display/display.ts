@@ -2,16 +2,24 @@
  * Everything related to rendering on a canvas is handled in the display module
  */
 import { THEME } from '../theme'
+import { Pair } from '../type'
 import { divmod } from '../util/divmod'
 import { getDrawText } from '../util/drawText'
 import { getContext2d } from '../util/getContext'
 import { parseTimeToMs } from '../util/parseTimeToMs'
+import { minuteOf } from '../util/time'
 
-let getHeadLocation = (p: number) => {
-  let [q, y8] = divmod(p, 8) // eigth of seconds ~ x coordinate
-  let [r, x] = divmod(q, 15 * 60) // one quarter hour is 15 minutes and one minute is 60 seconds
-  let [_, y1] = divmod(r, 24 * 4) // one day is 24 hours and one hour is 4 quarter hours
-  return { y: y8 + 8 * y1, x }
+function getHeadLocation(time: number): Pair {
+  let p = time
+  let y8 = p % 8 // minor y coordinate
+  let x = Math.floor(p / 8) % (60 * 15) // x coordinate
+  let y4 = Math.floor(p / (8 * 60 * 15)) % 4 // major y coordinate
+  let y24 = Math.floor(p / (8 * 60 * 15 * 4)) % 24 // major y coordinate
+
+  return {
+    x,
+    y: 1 + y8 + (8 + 1) * y4 + ((8 + 1) * 4 + 1) * y24,
+  }
 }
 
 export interface DisplayProp {
@@ -24,6 +32,7 @@ export interface DisplayProp {
 
 export let createDisplay = ({ canvas, dayName }: DisplayProp) => {
   let { ctx } = getContext2d(canvas)
+  let lastTime = 0
 
   const restore = (image: HTMLImageElement) => {
     ctx.drawImage(image, 0, 0)
@@ -49,8 +58,19 @@ export let createDisplay = ({ canvas, dayName }: DisplayProp) => {
 
     ctx.fillStyle = THEME.open
     if (x % 60 === 1) {
-      me.drawTimeIndicator()
+      me.drawWireframe()
     }
+    // periodically redraw the wireframe:
+    // - redraw whenever one second of a new minute starts has passed
+    // - redraw after 12 seconds of a new minute have passed
+    if (
+      minuteOf(lastTime - 1000) < minuteOf(targetTime - 1000) ||
+      minuteOf(lastTime - 12 * 1000) < minuteOf(targetTime - 12 * 1000)
+    ) {
+      me.drawWireframe()
+    }
+
+    lastTime = targetTime
 
     return {
       closeSuccess: () => {
@@ -70,12 +90,14 @@ export let createDisplay = ({ canvas, dayName }: DisplayProp) => {
 
   // Rulers and indications
   getDrawText().then((drawer) => {
-    me.drawTimeIndicator = () => {
+    me.drawWireframe = () => {
       let bg = THEME.textbg
 
       Array.from({ length: 25 }, (_, k25) => {
         // hour labels
-        let y = 8 * 4 * k25 // 8 pixels, 4 rows per hour
+        // 8 pixels for drawing and one for quarter-hour separation
+        // 4 rows per hour and one extra for hour separation
+        let y = ((8 + 1) * 4 + 1) * k25
         if (k25 > 0) {
           // position 0 is reserved for the date of the day
           drawer.drawText(ctx, { y, x: 0 }, ` ${k25}`.slice(-2), bg)
@@ -95,7 +117,7 @@ export let createDisplay = ({ canvas, dayName }: DisplayProp) => {
       drawer.drawText(ctx, { y: 0, x: 0 }, dayName, bg)
     }
 
-    me.drawTimeIndicator()
+    me.drawWireframe()
   })
 
   let me = {
@@ -105,7 +127,7 @@ export let createDisplay = ({ canvas, dayName }: DisplayProp) => {
     setDayName: (newName: string) => {
       dayName = newName
     },
-    drawTimeIndicator: () => {},
+    drawWireframe: () => {},
   }
 
   return me

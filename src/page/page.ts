@@ -11,7 +11,7 @@ function drawarea() {
   return h('canvas', {
     className: 'drawarea',
     width: 900, // 15 * 60
-    height: 768, // 8 * 24 * 4
+    height: 888, // ((8 + 1) * 4 + 1) * 24
   })
 }
 

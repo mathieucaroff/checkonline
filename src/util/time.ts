@@ -17,3 +17,13 @@ export let day = (time: Date) => {
 export let dayOf = (time: number) => {
   return Math.floor(time / (24 * 3600 * 1000))
 }
+
+/**
+ * minuteOf
+ *
+ * @param time - the time in epoch ms
+ * @returns the time in epoch days
+ */
+export function minuteOf(time: number) {
+  return ~~(time / (60 * 1000))
+}
