@@ -10,11 +10,10 @@ import { parseTimeToMs } from '../util/parseTimeToMs'
 import { minuteOf } from '../util/time'
 
 function getHeadLocation(time: number): Pair {
-  let p = time
-  let y8 = p % 8 // minor y coordinate
-  let x = Math.floor(p / 8) % (60 * 15) // x coordinate
-  let y4 = Math.floor(p / (8 * 60 * 15)) % 4 // major y coordinate
-  let y24 = Math.floor(p / (8 * 60 * 15 * 4)) % 24 // major y coordinate
+  let y8 = time % 8 // minor y coordinate
+  let y4 = Math.floor(time / 8) % 4 // major y coordinate
+  let x = Math.floor(time / (8 * 4)) % (60 * 15) // x coordinate
+  let y24 = Math.floor(time / (8 * 4 * 60 * 15)) % 24 // major y coordinate
 
   return {
     x,
@@ -53,20 +52,25 @@ export let createDisplay = ({ canvas, dayName }: DisplayProp) => {
     h += 1 // +1
 
     const fillArea = () => {
-      ctx.fillRect(x, y, w, h)
+      Array.from({ length: w }, (_, dy) => {
+        if (dy === 0) {
+          // do not draw on the hour labels
+          if (x < 13) return
+          // do not draw on the top left day label
+          if (y === 0 && x < 61) return
+        }
+        ctx.fillRect(x, y + dy * (8 + 1), 1, h)
+      })
     }
 
     ctx.fillStyle = THEME.open
+    fillArea()
     if (x % 60 === 1) {
       me.drawWireframe()
     }
     // periodically redraw the wireframe:
-    // - redraw whenever one second of a new minute starts has passed
-    // - redraw after 12 seconds of a new minute have passed
-    if (
-      minuteOf(lastTime - 1000) < minuteOf(targetTime - 1000) ||
-      minuteOf(lastTime - 12 * 1000) < minuteOf(targetTime - 12 * 1000)
-    ) {
+    // - redraw whenever one second of a new minute start has passed
+    if (minuteOf(lastTime - 1000) < minuteOf(targetTime - 1000)) {
       me.drawWireframe()
     }
 
@@ -105,11 +109,17 @@ export let createDisplay = ({ canvas, dayName }: DisplayProp) => {
 
         // dots
         ctx.fillStyle = THEME.ruler
-        Array.from({ length: 1920 / 2 / 5 }, (_, k192) => {
-          ctx.fillRect(k192 * 5, y - 1, 1, 2)
+        // every minute
+        Array.from({ length: 60 }, (_, k60) => {
+          ctx.fillRect(k60 * 15, y - 1, 1, 2)
         })
-        Array.from({ length: 15 }, (_, k15) => {
-          ctx.fillRect(k15 * 60, y - 5, 1, 10)
+        // every 5 minutes
+        Array.from({ length: 60 / 5 }, (_, k12) => {
+          ctx.fillRect((k12 * 900) / 12, y - 2, 1, 4)
+        })
+        // every 15 minutes
+        Array.from({ length: 60 / 15 }, (_, k4) => {
+          ctx.fillRect((k4 * 900) / 4, y - 5, 1, 10)
         })
       })
 

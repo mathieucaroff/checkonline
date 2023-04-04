@@ -16,7 +16,7 @@ function drawarea() {
   })
 }
 
-const timeOptionArray = '125ms 250ms 500ms 1s 2s 5s'.split(' ')
+const timeOptionArray = '125ms 250ms 500ms 1s 2s 4s'.split(' ')
 
 export function createPage(
   config: CheckOnlineConfig,
