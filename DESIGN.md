@@ -62,16 +62,20 @@ At each tick, the clock calls `tickCallback`. When the clock runs late, it calls
 ```
 pingTest(self: Window, targetList: string[], reactivity: number) => Promise<void>
 
-createSlowPingTester(self: Window, targetList: string[]) => { test: (reactivity: number) => Promise<void> }
+createPingTester(self: Window, targetList: string[]) => { test: (reactivity: number) => Promise<void> }
 ```
 
-`createSlowPingTester` relies entierly on `pingTest`. Upon creation, it defines the default target to be the first of the targetList.
+`createPingTester` relies entierly on `pingTest`. Upon creation, it considers the connection to be offline and thus it queries all the targets and selects the fastest.
 
-Upon running a test, it queries the default target and if it exceeds the reactivity timeout it does the following:
-- it queries all the other targets simultaneously and signals a loss of connection if the time exceeds the reactivity again
-- it changes the default target to the next one in line in the target list.
+Upon running a test, it queries the default target and if the query timeouts, it does the following:
 
-If the default target or any of the other targets responds in time, it signals that the connection is live. It does so as soon as any response arrives; including if it is the the default target which answers first.
+- it switches its internal connectivity state status to `offline`
+- it signals the loss of connection by re-throwing the exception
+
+While the status remains `offline`, it will query all the targets at each ping test, instead of just the default one. When any target answers in time, it will do the following:
+
+- it switches the default target to be the one which answered in time
+- it signals the recovery of the connection
 
 ### Data collection
 

@@ -130,7 +130,7 @@ function main() {
       clock = createClock(
         parseTimeToMs(config.period),
         parseTimeToMs(config.timezoneOffset),
-        parseTimeToMs(config.punctualityThreshold),
+        parseTimeToMs(config.period) * 2.5,
         ping,
       )
     }

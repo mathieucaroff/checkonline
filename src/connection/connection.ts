@@ -1,6 +1,7 @@
 /**
  * Test whether internet is available by loading an image
  */
+import { TARGET_LIST } from '../constant'
 import { urlRemoveSearchAndHashParamAndLocalStorage } from '../lib/urlParameter'
 import { CheckOnlineConfig, ConfigStorage } from '../type'
 import { loadImage } from '../util/loadImage'
@@ -11,7 +12,6 @@ export let pingTest = (
   configStorage: ConfigStorage,
   location: Location,
 ) => {
-  let imageUrlList = config.targetList.split('==')
   let startTime = new Date().getTime()
 
   return new Promise<number>((resolve, reject) => {
@@ -30,7 +30,7 @@ export let pingTest = (
       resolve(new Date().getTime() - startTime)
     }
 
-    imageUrlList.forEach((imageUrl) => {
+    TARGET_LIST.forEach((imageUrl) => {
       loadImage(imageUrl + '?t=' + (startTime % (86400 * 100))).then(handle)
     })
 

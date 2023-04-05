@@ -27,15 +27,8 @@ export interface CheckOnlineConfig {
    * "outdated" flag in its calls to the callback function
    */
   punctualityThreshold: string
-  // connection
-  /**
-   * List of image to load to check the connection status.
-   * This list is split on double equal sign `==`.
-   * The connection status is considered online as soon as any target responds.
-   * If no target responds before the `reactivity` time is elapsed, then the
-   * status is a failure.
-   */
-  targetList: string
+
+  // time
   /**
    * The timezone offset to Greenwitch time
    */
@@ -78,3 +71,28 @@ export interface SavedConfig {
 }
 
 export type ConfigStorage = KeyStorage<SavedConfig>
+
+export interface FeatureUsage {
+  archiveNavigation: boolean
+  settingsGui: boolean
+  settingsHash: boolean
+  settingsUrl: boolean
+}
+
+export interface ConnectivityOrder {
+  type: 'open' | 'success' | 'failure' | 'cancel'
+  time: number
+  duration: number
+}
+
+export type Order = ConnectivityOrder
+
+export interface ConfigurationReport {
+  type: 'config'
+  period?: number
+  reactivity?: number
+}
+
+export type Report = ConfigurationReport
+
+export type Message = Order | Report
