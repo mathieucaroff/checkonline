@@ -3,7 +3,9 @@ export function createBroadcastChannel<T>(name: string) {
 
   return {
     addMessageEventListener: (listener: (event: { data: T }) => void) =>
-      checkonlineChannel.addEventListener('message', listener),
+      checkonlineChannel.addEventListener('message', (event) => {
+        listener(event)
+      }),
     postMessage: (message: T) => {
       checkonlineChannel.postMessage(message)
     },

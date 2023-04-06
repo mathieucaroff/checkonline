@@ -142,3 +142,5 @@ export let createDisplay = ({ canvas, dayName }: DisplayProp) => {
 
   return me
 }
+
+export type Display = ReturnType<typeof createDisplay>

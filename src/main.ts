@@ -1,14 +1,15 @@
 import { default as packageInfo } from '../package.json'
-import { Clock, createClock } from './clock/clock'
 import { parseConfig } from './config'
-import { pingTest } from './connection/connection'
-import { createDisplay } from './display/display'
+import { BROADCAST_CHANNEL_NAME } from './constant'
+import { Display, createDisplay } from './display/display'
 import { urlRemoveSearchAndHashParamAndLocalStorage } from './lib/urlParameter'
+import { createLookManager } from './look/look'
 import { createPage } from './page/page'
 import { createImageStorage } from './storage/imageStorage'
 import { createKeyStorage } from './storage/storage'
 import { THEME } from './theme'
-import { ActionObject, CheckOnlineConfig, SavedConfig, State } from './type'
+import { ActionObject, Message, SavedConfig, State } from './type'
+import { createBroadcastChannel } from './util/channel'
 import { loadImage } from './util/loadImage'
 import { parseTimeToMs } from './util/parseTimeToMs'
 import { day, dayOf } from './util/time'
@@ -18,6 +19,8 @@ function main() {
 
   const configStorage = createKeyStorage<SavedConfig>(localStorage, packageInfo.name)
 
+  const checkonlineChannel = createBroadcastChannel<Message>(BROADCAST_CHANNEL_NAME)
+
   const action: ActionObject = {
     clear() {
       imageStorage.removeImage(now())
@@ -25,13 +28,20 @@ function main() {
       displayLeft.drawWireframe()
     },
     setPeriod(period) {
-      updateConfig({ ...config, period })
+      checkonlineChannel.postMessage({ type: 'config', period: parseTimeToMs(period) })
     },
     setReactivity(reactivity) {
-      updateConfig({ ...config, reactivity })
+      checkonlineChannel.postMessage({ type: 'config', reactivity: parseTimeToMs(reactivity) })
     },
     setArchiveDisplayDate(date) {
-      updateConfig({ ...config, right: date })
+      displayRight.setDayName(date)
+      let rightImageDataUrl = imageStorage.loadImageFromDay(date)
+      if (rightImageDataUrl) {
+        loadImage(rightImageDataUrl).then(displayRight.restore)
+      } else {
+        displayRight.wipe()
+        displayRight.drawWireframe()
+      }
     },
   }
 
@@ -49,110 +59,76 @@ function main() {
     dayName: day(new Date(Date.now() - oneDay)),
   })
   let imageStorage = createImageStorage()
-  let clock: Clock = { dispose: () => {} }
+
+  if (config.clear) {
+    action.clear()
+    urlRemoveSearchAndHashParamAndLocalStorage(location, configStorage, 'clear')
+  }
+
+  action.setArchiveDisplayDate(config.right)
 
   const now = () => {
     return new Date(Date.now() - parseTimeToMs(config.timezoneOffset))
+  }
+
+  const handleEndOfDay = (currentDay: Date) => {
+    console.log(`handleEndOfDay (${day(currentDay)})`)
+    imageStorage.saveImage(page.canvasLeft, currentDay)
+    action.setArchiveDisplayDate(day(currentDay))
+    displayLeft.wipe()
+    displayLeft.setDayName(day(new Date()))
+    displayLeft.drawWireframe()
   }
 
   let favicon = document.getElementById('favicon') as HTMLLinkElement
   let faviconConnected = document.getElementById('faviconConnected') as HTMLLinkElement
   let faviconDisconnected = document.getElementById('faviconDisconnected') as HTMLLinkElement
 
-  /**
-   * ping
-   * @param time - time to use to write the ping result to the canvas
-   */
-  const ping = (time: number, lastTime: number | undefined, skip: number) => {
-    if (lastTime && dayOf(lastTime) !== dayOf(time)) {
-      handleEndOfDay(new Date(lastTime))
+  const lookManager = createLookManager(
+    {
+      document,
+      favicon,
+      faviconConnected,
+      faviconDisconnected,
+      theme: THEME,
+    },
+    {
+      status: 'unknown',
+      titleConnected: document.title,
+      titleDisconnected: document.title,
+    },
+  )
+
+  let outcomeSignalSet: Record<any, ReturnType<Display['open']>> = {}
+  let lastDay = 0
+  checkonlineChannel.addMessageEventListener(({ data }) => {
+    let today = dayOf(Date.now() - parseTimeToMs(config.timezoneOffset))
+    if (today > lastDay) {
+      handleEndOfDay(new Date(lastDay * 24 * 3600 * 1000))
     }
-    lastTime = time
-    if (skip > 0) {
-      displayLeft.open(time, `${skip}ms`).closeCancel()
-      return
+    lastDay = today
+
+    if (data.type === 'open') {
+      outcomeSignalSet[data.time] = displayLeft.open(data.time, `${data.duration}ms`)
+    } else if (data.type === 'success') {
+      lookManager.update({ status: 'connected' })
+      outcomeSignalSet[data.time]?.closeSuccess()
+      delete outcomeSignalSet[data.time]
+    } else if (data.type === 'failure') {
+      lookManager.update({ status: 'disconnected' })
+      outcomeSignalSet[data.time]?.closeError()
+      delete outcomeSignalSet[data.time]
+    } else if (data.type === 'cancel') {
+      displayLeft.open(data.time, `${data.duration}ms`).closeCancel()
+      delete outcomeSignalSet[data.time]
     }
-    const closer = displayLeft.open(time, config.period)
-    pingTest(config, configStorage, location)
-      .then(() => {
-        closer.closeSuccess()
-
-        if (state.status !== 'connected') {
-          state.status = 'connected'
-          favicon.href = faviconConnected.href
-          document.title = config.connectedTitle
-          document.documentElement.style.backgroundColor = THEME.connected
-          document.body.style.backgroundColor = THEME.connected
-        }
-      })
-      .catch(() => {
-        closer.closeError()
-
-        if (state.status !== 'disconnected') {
-          state.status = 'disconnected'
-          favicon.href = faviconDisconnected.href
-          document.title = config.disconnectedTitle
-          document.documentElement.style.backgroundColor = THEME.disconnected
-          document.body.style.backgroundColor = THEME.disconnected
-        }
-      })
-  }
-
-  const handleEndOfDay = (currentDay: Date) => {
-    imageStorage.saveImage(page.canvasLeft, currentDay)
-    console.log(`handleEndOfDay (${day(currentDay)})`)
-    displayLeft.wipe()
-    displayLeft.setDayName(day(new Date()))
-    displayLeft.drawWireframe()
-    updateConfig(parseConfig(configStorage, location))
-  }
-
-  const updateConfig = (newConfig: CheckOnlineConfig) => {
-    let lastConfig = { ...config }
-    Object.entries(newConfig).forEach(([k, v]) => ((config as any)[k] = v))
-    applyConfig(config, lastConfig)
-  }
-
-  const applyConfig = (config: CheckOnlineConfig, lastConfig: CheckOnlineConfig) => {
-    console.info('config', config)
-
-    if (config.clear) {
-      action.clear()
-      urlRemoveSearchAndHashParamAndLocalStorage(location, configStorage, 'clear')
-    }
-
-    if (
-      config.period !== lastConfig.period ||
-      config.timezoneOffset !== lastConfig.timezoneOffset
-    ) {
-      // (Re)-Start ticking
-      clock.dispose()
-      clock = createClock(
-        parseTimeToMs(config.period),
-        parseTimeToMs(config.timezoneOffset),
-        parseTimeToMs(config.period) * 2.5,
-        ping,
-      )
-    }
-
-    let rightImageDataUrl = imageStorage.loadImageFromDay(config.right)
-    if (rightImageDataUrl) {
-      displayRight.setDayName(config.right)
-      loadImage(rightImageDataUrl).then(displayRight.restore)
-    } else {
-      displayRight.wipe()
-      displayRight.setDayName(day(new Date(Date.now() - oneDay)))
-      displayRight.drawWireframe()
-    }
-  }
-
-  applyConfig(config, {} as any)
-
-  window.addEventListener('hashchange', () => updateConfig(parseConfig(configStorage, location)))
+  })
 
   // Backing up and restoring the canvas image
-  window.addEventListener('beforeunload', () => {
-    imageStorage.saveImage(page.canvasLeft, now())
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') {
+      imageStorage.saveImage(page.canvasLeft, now())
+    }
   })
   let imageDataUrl = imageStorage.loadImage(now())
   if (imageDataUrl) {
@@ -160,6 +136,15 @@ function main() {
   } else {
     displayLeft.wipe() // make the canvas non-transparent and grey
   }
+
+  // Make a request every 10 seconds to keep the service worker alive:
+  const serviceWorkerWatchdog = () => {
+    fetch('/serviceworker/dummy').then(() => {
+      setTimeout(serviceWorkerWatchdog, 5_000)
+    })
+  }
+
+  serviceWorkerWatchdog()
 }
 
 main()

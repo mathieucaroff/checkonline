@@ -29,7 +29,7 @@ export let createClock = (
 
   const tick = () => {
     try {
-      const skip = true || Date.now() - targetTime > punctualityThreshold
+      const skip = Date.now() - targetTime > punctualityThreshold
       callback(targetTime, period, skip)
     } finally {
       targetTime += period

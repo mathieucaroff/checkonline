@@ -1,4 +1,7 @@
 import { KeyStorage } from './storage/storage'
+import { THEME } from './theme'
+
+export type Theme = typeof THEME
 
 export interface Pair {
   x: number

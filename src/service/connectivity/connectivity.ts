@@ -19,15 +19,18 @@ export function pingTest(self: typeof globalThis, targetList: string[], reactivi
     }, reactivity)
 
     targetList.forEach((imageUrl, k) => {
-      self.fetch(`${imageUrl}?t=${startTime}`, { mode: 'no-cors' }).then((response) => {
-        if (response.status >= 400) {
-          console.error(response)
-          return
-        }
+      self.fetch(`${imageUrl}?t=${startTime}`, { mode: 'no-cors' }).then(
+        (response) => {
+          if (response.status >= 400) {
+            console.error(response)
+            return
+          }
 
-        self.clearTimeout(errorTimeoutId)
-        resolve(k)
-      })
+          self.clearTimeout(errorTimeoutId)
+          resolve(k)
+        },
+        () => {},
+      )
     })
   })
 }
