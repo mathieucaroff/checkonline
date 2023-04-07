@@ -11,7 +11,7 @@ import { Tooltip } from 'bootstrap'
 function drawarea() {
   return h('canvas', {
     className: 'drawarea',
-    width: 900, // 15 * 60
+    width: 900 + 12 + 2 * 4, // 15 * 60 + 60 / 5 + 2 * 60 / 15
     height: 888, // ((8 + 1) * 4 + 1) * 24
   })
 }

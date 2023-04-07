@@ -16,7 +16,7 @@ function getHeadLocation(time: number): Pair {
   let y24 = Math.floor(time / (8 * 4 * 60 * 15)) % 24 // major y coordinate
 
   return {
-    x,
+    x: x + Math.floor(x / 5) + 2 * Math.floor(x / 15),
     y: 1 + y8 + (8 + 1) * y4 + ((8 + 1) * 4 + 1) * y24,
   }
 }
@@ -109,17 +109,21 @@ export let createDisplay = ({ canvas, dayName }: DisplayProp) => {
 
         // dots
         ctx.fillStyle = THEME.ruler
-        // every minute
-        Array.from({ length: 60 }, (_, k60) => {
-          ctx.fillRect(k60 * 15, y - 1, 1, 2)
-        })
-        // every 5 minutes
-        Array.from({ length: 60 / 5 }, (_, k12) => {
-          ctx.fillRect((k12 * 900) / 12, y - 2, 1, 4)
-        })
-        // every 15 minutes
-        Array.from({ length: 60 / 15 }, (_, k4) => {
-          ctx.fillRect((k4 * 900) / 4, y - 5, 1, 10)
+        let x = 0
+        Array.from({ length: 60 + 1 }, (_, k60) => {
+          if (k60 % 15 === 0) {
+            // every 15 minutes
+            ctx.fillRect(x - 1, y - 5, 2, 10)
+            x += 15 + 1 + 2
+          } else if (k60 % 5 === 0) {
+            // every 5 minutes
+            ctx.fillRect(x, y - 3, 1, 6)
+            x += 15 + 1
+          } else {
+            // every minute
+            ctx.fillRect(x, y - 1, 1, 2)
+            x += 15
+          }
         })
       })
 
