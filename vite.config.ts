@@ -7,15 +7,22 @@ export default defineConfig({
   test: {},
   plugins: [
     VitePWA({
-      devOptions: { enabled: true, type: 'module' },
+      // devOptions: { enabled: true },
       registerType: 'autoUpdate',
-      strategies: 'injectManifest',
-      srcDir: 'src/service',
-      filename: 'serviceWorker.ts',
-      injectRegister: 'inline',
       manifest: {
         theme_color: '#000',
         background_color: '#000',
+      },
+      workbox: {
+        navigationPreload: true,
+        runtimeCaching: [
+          { urlPattern: /[&?]t=\d+/, handler: 'NetworkOnly' },
+          {
+            urlPattern: /.*/,
+            handler: 'StaleWhileRevalidate',
+            options: { cacheName: packageInfo.name },
+          },
+        ],
       },
     }),
   ],

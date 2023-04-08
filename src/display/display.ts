@@ -16,7 +16,7 @@ function getHeadLocation(time: number): Pair {
   let y24 = Math.floor(time / (8 * 4 * 60 * 15)) % 24 // major y coordinate
 
   return {
-    x: x + Math.floor(x / 5) + 2 * Math.floor(x / 15),
+    x: x + Math.floor((x - 1) / (5 * 15)) + Math.floor(x / (15 * 15)),
     y: 1 + y8 + (8 + 1) * y4 + ((8 + 1) * 4 + 1) * y24,
   }
 }
@@ -53,13 +53,10 @@ export let createDisplay = ({ canvas, dayName }: DisplayProp) => {
 
     const fillArea = () => {
       Array.from({ length: w }, (_, dy) => {
-        if (dy === 0) {
-          // do not draw on the hour labels
-          if (x < 13) return
-          // do not draw on the top left day label
-          if (y === 0 && x < 61) return
-        }
-        ctx.fillRect(x, y + dy * (8 + 1), 1, h)
+        const py = y + dy * (8 + 1)
+        // do not draw on the top left day label
+        if (py === 0 && x < 61) return
+        ctx.fillRect(x, py, 1, h)
       })
     }
 

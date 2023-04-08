@@ -15,6 +15,8 @@ import { parseTimeToMs } from './util/parseTimeToMs'
 import { day, dayOf } from './util/time'
 
 function main() {
+  new Worker(new URL('./worker/dedicatedWorker', import.meta.url), { type: 'module' })
+
   const oneDay = 86_400_000
 
   const configStorage = createKeyStorage<SavedConfig>(localStorage, packageInfo.name)
@@ -60,19 +62,17 @@ function main() {
   })
   let imageStorage = createImageStorage()
 
+  const now = () => {
+    return new Date(Date.now() - parseTimeToMs(config.timezoneOffset))
+  }
+
   if (config.clear) {
     action.clear()
     urlRemoveSearchAndHashParamAndLocalStorage(location, configStorage, 'clear')
   }
 
   action.setArchiveDisplayDate(config.right)
-
-  const now = () => {
-    return new Date(Date.now() - parseTimeToMs(config.timezoneOffset))
-  }
-
   const handleEndOfDay = (currentDay: Date) => {
-    console.log(`handleEndOfDay (${day(currentDay)})`)
     imageStorage.saveImage(page.canvasLeft, currentDay)
     action.setArchiveDisplayDate(day(currentDay))
     displayLeft.wipe()
@@ -80,9 +80,9 @@ function main() {
     displayLeft.drawWireframe()
   }
 
-  let favicon = document.getElementById('favicon') as HTMLLinkElement
-  let faviconConnected = document.getElementById('faviconConnected') as HTMLLinkElement
-  let faviconDisconnected = document.getElementById('faviconDisconnected') as HTMLLinkElement
+  const favicon = document.getElementById('favicon') as HTMLLinkElement
+  const faviconConnected = document.getElementById('faviconConnected') as HTMLLinkElement
+  const faviconDisconnected = document.getElementById('faviconDisconnected') as HTMLLinkElement
 
   const lookManager = createLookManager(
     {
@@ -103,7 +103,7 @@ function main() {
   let lastDay = 0
   checkonlineChannel.addMessageEventListener(({ data }) => {
     let today = dayOf(Date.now() - parseTimeToMs(config.timezoneOffset))
-    if (today > lastDay) {
+    if (lastDay && today > lastDay) {
       handleEndOfDay(new Date(lastDay * 24 * 3600 * 1000))
     }
     lastDay = today
@@ -136,15 +136,6 @@ function main() {
   } else {
     displayLeft.wipe() // make the canvas non-transparent and grey
   }
-
-  // Make a request every 10 seconds to keep the service worker alive:
-  const serviceWorkerWatchdog = () => {
-    fetch('/serviceworker/dummy').then(() => {
-      setTimeout(serviceWorkerWatchdog, 5_000)
-    })
-  }
-
-  serviceWorkerWatchdog()
 }
 
 main()
