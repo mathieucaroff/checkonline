@@ -227,6 +227,8 @@ export function createPage(
     }
   })
 
+  dateOptionList.sort()
+
   const handleMouseDown = () => {
     dateSelectorInput.value = ''
   }
