@@ -29,9 +29,8 @@ A simple network connectivity watcher for the browser.
 
 - The configuration can be changed through the GUI
 - It is saved in the local storage of the browser
-- It can be exported and imported as JSON through a dedicated tab
 
 ## Frequently asked questions
 
-- Why doesn't the title change by default?
-  - Whenever the title is changed, the browser marks the tab with a dot to signal this change to the user (tested in Firefox). This can become bothersome very quickly.
+- Why  the title does not change by default?
+  - Whenever the title is changed, the browser marks the tab with a dot to signal this change to the user (tested in Firefox). This can become bothersome very quickly

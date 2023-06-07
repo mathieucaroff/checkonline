@@ -6,8 +6,9 @@
   "version": "2.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
+    "dev": "vite --port 1122",
+    "build": "vite build",
+    "mcabuild": "vite build --base /checkonline/",
     "preview": "vite preview"
   },
   "devDependencies": {
