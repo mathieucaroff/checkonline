@@ -1,9 +1,11 @@
 # Check-online
 
+[![preview](./doc/screenshot.png)](https://online.ea9c.com/)
+
 A simple network connectivity watcher for the browser.
 
-[checkonline.vercel.app](https://checkonline.vercel.app/)
-[mathieucaroff.com/checkonline](https://mathieucaroff.com/checkonline/)
+- [checkonline.vercel.app](https://checkonline.vercel.app)
+- [online.ea9c.com](https://online.ea9c.com)
 
 ## Features
 
@@ -32,5 +34,5 @@ A simple network connectivity watcher for the browser.
 
 ## Frequently asked questions
 
-- Why  the title does not change by default?
+- Why the title does not change by default?
   - Whenever the title is changed, the browser marks the tab with a dot to signal this change to the user (tested in Firefox). This can become bothersome very quickly

@@ -3,6 +3,7 @@
 tmp/
 
 !/asset/
+!/doc/
 !/src/
 
 # Files
