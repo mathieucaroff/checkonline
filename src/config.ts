@@ -15,7 +15,7 @@ export let parseConfig = (configStorage: ConfigStorage, location: Location) => {
     // connection and clock
     period: () => configStorage.getItem('period') ?? '500ms',
     reactivity: () => configStorage.getItem('reactivity') ?? '500ms',
-    punctualityThreshold: () => '2s',
+    punctualityThreshold: () => '4s',
     targetList: () => 'https://www.bing.com/s/a/bing_p.ico==https://www.google.com/favicon.ico',
     timezoneOffset: () => `${new Date().getTimezoneOffset()}m`,
     // page

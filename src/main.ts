@@ -68,11 +68,15 @@ function main() {
       handleEndOfDay(new Date(lastTime))
     }
     lastTime = time
+
+    let dailyTime = time % oneDay
     if (skip > 0) {
-      displayLeft.open(time, `${skip}ms`).closeCancel()
+      displayLeft.open(dailyTime - skip, `${skip}ms`).closeCancel()
       return
     }
-    const closer = displayLeft.open(time, config.period)
+
+    let periodwiseTime = dailyTime - (dailyTime % parseTimeToMs(config.period))
+    const closer = displayLeft.open(periodwiseTime, config.period)
     pingTest(config, configStorage, location)
       .then(() => {
         closer.closeSuccess()

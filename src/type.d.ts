@@ -1,11 +1,16 @@
-import { KeyStorage } from './storage/storage'
+interface KeyStorage<T extends {}> {
+  clear: () => void
+  getItem: <TK extends keyof T>(key: TK) => T[TK]
+  removeItem: <TK extends keyof T>(key: TK) => void
+  setItem: <TK extends keyof T>(key: TK, value: T[TK]) => void
+}
 
-export interface Pair {
+interface XYPair {
   x: number
   y: number
 }
 
-export interface CheckOnlineConfig {
+interface CheckOnlineConfig {
   // debugging options, for programmers
   fail: boolean
   debug: boolean
@@ -37,7 +42,7 @@ export interface CheckOnlineConfig {
    */
   targetList: string
   /**
-   * The timezone offset to Greenwitch time
+   * The timezone offset to Greenwich time
    */
   timezoneOffset: string
 
@@ -54,20 +59,20 @@ export interface CheckOnlineConfig {
   right: string
 }
 
-export interface ActionObject {
+interface ActionObject {
   clear: () => void
   setPeriod: (period: string) => void
   setReactivity: (reactivity: string) => void
   setArchiveDisplayDate: (date: string) => void
 }
 
-export type Status = 'unknown' | 'connected' | 'disconnected'
+type Status = 'unknown' | 'connected' | 'disconnected'
 
-export interface State {
+interface State {
   status: Status
 }
 
-export interface SavedConfig {
+interface SavedConfig {
   period: string
   reactivity: string
   enableCustomTitle: boolean
@@ -77,4 +82,6 @@ export interface SavedConfig {
   fail: string
 }
 
-export type ConfigStorage = KeyStorage<SavedConfig>
+type ConfigStorage = KeyStorage<SavedConfig>
+
+type NumberQuadruplet = [number, number, number, number]

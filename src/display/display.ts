@@ -2,14 +2,13 @@
  * Everything related to rendering on a canvas is handled in the display module
  */
 import { THEME } from '../theme'
-import { Pair } from '../type'
-import { divmod } from '../util/divmod'
+import { XYPair } from '../type'
 import { getDrawText } from '../util/drawText'
 import { getContext2d } from '../util/getContext'
 import { parseTimeToMs } from '../util/parseTimeToMs'
 import { minuteOf } from '../util/time'
 
-function getHeadLocation(time: number): Pair {
+function getHeadLocation(time: number): XYPair & { eighthY: number } {
   let p = time
   let y8 = p % 8 // minor y coordinate
   let x = Math.floor(p / 8) % (60 * 15) // x coordinate
@@ -18,8 +17,41 @@ function getHeadLocation(time: number): Pair {
 
   return {
     x,
-    y: 1 + y8 + (8 + 1) * y4 + ((8 + 1) * 4 + 1) * y24,
+    y: 1 + (8 + 1) * y4 + ((8 + 1) * 4 + 1) * y24,
+    eighthY: y8,
   }
+}
+
+function computeFillRectList(eighthY: number, period: number): NumberQuadruplet[] {
+  let fillRectList: NumberQuadruplet[] = []
+  let currentX = 0
+  let currentPeriod = period
+
+  // First fillRect call
+  if (eighthY > 0) {
+    // Fill either:
+    // - just the few remaining missing pixels
+    // - the whole remaining of the line of eight pixels
+    let h = Math.min(period, 8 - eighthY)
+    fillRectList.push([0, eighthY, 1, h])
+    currentX += 1
+    currentPeriod -= h
+  }
+
+  // Second fillRect call
+  if (currentPeriod >= 8) {
+    let w = Math.floor(currentPeriod / 8)
+    fillRectList.push([currentX, 0, w, 8])
+    currentX += w
+    currentPeriod -= w * 8
+  }
+
+  // Third and last call
+  if (currentPeriod > 0) {
+    let h = currentPeriod
+    fillRectList.push([currentX, 0, 1, h])
+  }
+  return fillRectList
 }
 
 export interface DisplayProp {
@@ -47,17 +79,16 @@ export let createDisplay = ({ canvas, dayName }: DisplayProp) => {
     let pixelTime = (8 * targetTime) / 1000
     let period = (8 * parseTimeToMs(textPeriod)) / 1000
 
-    pixelTime -= pixelTime % period
-    let { x, y } = getHeadLocation(pixelTime)
-    let [w, h] = divmod(period + 8 - 1, 8) // -1
-    h += 1 // +1
+    let { x, y, eighthY } = getHeadLocation(pixelTime)
+
+    let fillRectList = computeFillRectList(eighthY, period)
 
     const fillArea = () => {
-      ctx.fillRect(x, y, w, h)
+      fillRectList.forEach(([dx, dy, w, h]) => ctx.fillRect(x + dx, y + dy, w, h))
     }
 
     ctx.fillStyle = THEME.open
-    if (x % 60 === 1) {
+    if ((pixelTime / 8) % 60 === 1) {
       me.drawWireframe()
     }
     // periodically redraw the wireframe:

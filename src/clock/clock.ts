@@ -14,7 +14,7 @@
 export let createClock = (
   period: number,
   offset: number,
-  punctualityThreshold: number,
+  punctualityThresholdMs: number,
   callback: (t: number, lastT: number | undefined, skip: number) => void,
 ) => {
   let timeoutId: ReturnType<typeof setTimeout>
@@ -27,7 +27,7 @@ export let createClock = (
     let delta = targetTime - now
     let skip = 0
 
-    if (delta <= -punctualityThreshold) {
+    if (delta <= -punctualityThresholdMs) {
       counter = Math.floor((now - initialTime) / period)
       skip = now - targetTime
       targetTime = initialTime + counter * period

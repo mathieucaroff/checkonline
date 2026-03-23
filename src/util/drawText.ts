@@ -1,5 +1,5 @@
 import fontImageUrl from '../../asset/typeface/pixelDigits.png'
-import { Pair } from '../type'
+import { XYPair } from '../type'
 import { loadImage } from './loadImage'
 
 export let getDrawText = async () => {
@@ -8,7 +8,7 @@ export let getDrawText = async () => {
   return {
     drawText: (
       ctx: CanvasRenderingContext2D,
-      position: Pair,
+      position: XYPair,
       text: string,
       backgroundColor: string,
     ) => {
@@ -17,7 +17,7 @@ export let getDrawText = async () => {
       }
       ctx.fillRect(position.x, position.y + 1, 6 * text.length + 1, 9)
       ;[...text].forEach((c, k) => {
-        if (isNaN(parseInt(c, 10))) {
+        if (Number.isNaN(Number(c))) {
           return
         }
         let sx = 10 * +c

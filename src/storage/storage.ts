@@ -31,10 +31,3 @@ export let createKeyStorage = <T extends {}>(localStorage: Storage, baseName: st
     },
   }
 }
-
-export interface KeyStorage<T extends {}> {
-  clear: () => void
-  getItem: <TK extends keyof T>(key: TK) => T[TK]
-  removeItem: <TK extends keyof T>(key: TK) => void
-  setItem: <TK extends keyof T>(key: TK, value: T[TK]) => void
-}
