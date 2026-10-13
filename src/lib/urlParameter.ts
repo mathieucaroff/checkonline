@@ -1,4 +1,3 @@
-import { ConfigStorage, SavedConfig } from '../type'
 import { InfoObject, indirectResolve } from './indirectResolver'
 
 export let ensureSpacelessURL = (location: Location) => {

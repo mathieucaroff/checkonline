@@ -1,5 +1,4 @@
 import fontImageUrl from '../../asset/typeface/pixelDigits.png'
-import { XYPair } from '../type'
 import { loadImage } from './loadImage'
 
 export let getDrawText = async () => {

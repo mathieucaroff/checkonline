@@ -1,7 +1,6 @@
 import { default as packageInfo } from '../../package.json'
 import { githubCornerHTML } from '../lib/githubCorner'
 import { h } from '../lib/hyper'
-import { ActionObject, CheckOnlineConfig, ConfigStorage, State } from '../type'
 import { parseTimeToMs } from '../util/parseTimeToMs'
 import { day } from '../util/time'
 import './style.css'

@@ -2,7 +2,6 @@
  * Test whether internet is available by loading an image
  */
 import { urlRemoveSearchAndHashParamAndLocalStorage } from '../lib/urlParameter'
-import { CheckOnlineConfig, ConfigStorage } from '../type'
 import { loadImage } from '../util/loadImage'
 import { parseTimeToMs } from '../util/parseTimeToMs'
 

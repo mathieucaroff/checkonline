@@ -2,7 +2,6 @@
  * Everything related to rendering on a canvas is handled in the display module
  */
 import { THEME } from '../theme'
-import { XYPair } from '../type'
 import { getDrawText } from '../util/drawText'
 import { getContext2d } from '../util/getContext'
 import { parseTimeToMs } from '../util/parseTimeToMs'
