@@ -12,19 +12,19 @@
     "preview": "vite preview"
   },
   "devDependencies": {
-    "@trivago/prettier-plugin-sort-imports": "^4.1.1",
-    "@types/bootstrap": "^5.2.6",
-    "@types/serviceworker": "^0.0.67",
-    "prettier": "^2.8.4",
-    "typescript": "^4.9.3",
-    "vite": "^4.1.0",
-    "vite-plugin-pwa": "^0.14.4",
-    "vitest": "^0.29.2",
-    "workbox-routing": "^6.5.4",
-    "workbox-strategies": "^6.5.4"
+    "@trivago/prettier-plugin-sort-imports": "6.0.2",
+    "@types/bootstrap": "5.2.11",
+    "@types/serviceworker": "0.0.203",
+    "prettier": "3.9.10",
+    "typescript": "7.0.2",
+    "vite": "8.3.4",
+    "vite-plugin-pwa": "2.0.0",
+    "vitest": "5.0.4",
+    "workbox-routing": "7.4.1",
+    "workbox-strategies": "7.4.1"
   },
   "dependencies": {
-    "@popperjs/core": "^2.11.6",
-    "bootstrap": "^5.3.0-alpha2"
+    "@popperjs/core": "2.11.8",
+    "bootstrap": "5.3.8"
   }
 }

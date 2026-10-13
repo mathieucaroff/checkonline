@@ -28,5 +28,15 @@ export let parseConfig = (configStorage: ConfigStorage, location: Location) => {
       day(new Date(Date.now() - parseTimeToMs(timezoneOffset()) - 86400 * 1000)),
   })
 
+  for (const key of ['period', 'reactivity', 'punctualityThreshold', 'timezoneOffset'] as const) {
+    try {
+      parseTimeToMs(config[key], { timer: key !== 'timezoneOffset' })
+    } catch (error) {
+      throw new RangeError(
+        `Invalid configuration "${key}": ${error instanceof Error ? error.message : String(error)}`,
+      )
+    }
+  }
+
   return config
 }

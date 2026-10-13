@@ -1,7 +1,7 @@
 /// <reference types="vitest" />
-import { default as packageInfo } from './package.json'
-import { defineConfig } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
+import { defineConfig } from 'vitest/config'
+import { default as packageInfo } from './package.json' with { type: 'json' }
 
 export default defineConfig({
   test: {},

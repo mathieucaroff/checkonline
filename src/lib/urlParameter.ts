@@ -77,14 +77,18 @@ export let urlRemoveSearchAndHashParamAndLocalStorage = (
 ) => {
   configStorage.removeItem(param)
 
-  const hashtagRegex__ = `#${param}(=[^#]*)?($|(#.*))`
-  const searchRegex = `[?&]${param}(=[^&]*)?($|(&.*))`
-  let newHref = location.href.replace(new RegExp(`${hashtagRegex__}|${searchRegex}`, 'g'), '$3$6')
+  const url = new URL(location.href)
+  if (url.searchParams.has(param)) {
+    url.searchParams.delete(param)
+  }
 
-  if (location.href !== newHref) {
-    if (location.href.includes('#') && !newHref.includes('#')) {
-      newHref += '#'
-    }
-    location.href = newHref
+  const hashParts = url.hash.split('#').slice(1)
+  const remainingHashParts = hashParts.filter((part) => part.split('=', 1)[0] !== param)
+  if (remainingHashParts.length !== hashParts.length) {
+    url.hash = remainingHashParts.length ? `#${remainingHashParts.join('#')}` : ''
+  }
+
+  if (url.href !== location.href) {
+    history.replaceState(history.state, '', url.href)
   }
 }

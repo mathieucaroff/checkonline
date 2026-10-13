@@ -19,6 +19,7 @@ function main() {
 
   const action: ActionObject = {
     clear() {
+      generation += 1
       imageStorage.removeImage(now())
       displayLeft.wipe()
       displayLeft.drawWireframe()
@@ -39,7 +40,7 @@ function main() {
   const config = parseConfig(configStorage, location)
   const page = createPage(config, state, configStorage, action)
   document.body.appendChild(page.content)
-  const displayLeft = createDisplay({
+  let displayLeft = createDisplay({
     canvas: page.canvasLeft,
     dayName: day(new Date()),
   })
@@ -54,6 +55,64 @@ function main() {
     return new Date(Date.now() - parseTimeToMs(config.timezoneOffset))
   }
 
+  interface DayRecording {
+    display: ReturnType<typeof createDisplay>
+    canvas: HTMLCanvasElement
+    date: Date
+    pending: number
+    archived: boolean
+  }
+
+  let recording: DayRecording = {
+    display: displayLeft,
+    canvas: page.canvasLeft,
+    date: now(),
+    pending: 0,
+    archived: false,
+  }
+  const pendingArchives = new Set<DayRecording>()
+  let generation = 0
+  let sequence = 0
+  let latestAcceptedSequence = 0
+  let restoringRecording: DayRecording | undefined
+
+  const saveRecording = (current: DayRecording) => {
+    if (current === restoringRecording) {
+      return false
+    }
+    try {
+      imageStorage.saveImage(current.canvas, current.date)
+      return true
+    } catch (error) {
+      console.error(`Unable to save history for ${day(current.date)}`, error)
+      return false
+    }
+  }
+
+  const finalizeArchive = (completed: DayRecording) => {
+    if (!completed.archived || completed.pending > 0) {
+      return
+    }
+    if (!saveRecording(completed)) {
+      return
+    }
+    pendingArchives.delete(completed)
+    if (config.right === day(completed.date)) {
+      displayRight.restore(completed.canvas)
+    }
+  }
+
+  const saveHistory = () => {
+    saveRecording(recording)
+    pendingArchives.forEach((archive) => {
+      if (archive.pending === 0) {
+        finalizeArchive(archive)
+      } else {
+        saveRecording(archive)
+      }
+    })
+  }
+
   let favicon = document.getElementById('favicon') as HTMLLinkElement
   let faviconConnected = document.getElementById('faviconConnected') as HTMLLinkElement
   let faviconDisconnected = document.getElementById('faviconDisconnected') as HTMLLinkElement
@@ -62,11 +121,10 @@ function main() {
    * ping
    * @param time - time to use to write the ping result to the canvas
    */
-  const ping = (time: number, lastTime: number | undefined, skip: number) => {
-    if (lastTime && dayOf(lastTime) !== dayOf(time)) {
-      handleEndOfDay(new Date(lastTime))
+  const ping = (time: number, _lastTime: number | undefined, skip: number) => {
+    if (dayOf(recording.date.getTime()) !== dayOf(time)) {
+      handleEndOfDay(new Date(time))
     }
-    lastTime = time
 
     let dailyTime = time % oneDay
     if (skip > 0) {
@@ -75,38 +133,65 @@ function main() {
     }
 
     let periodwiseTime = dailyTime - (dailyTime % parseTimeToMs(config.period))
-    const closer = displayLeft.open(periodwiseTime, config.period)
-    pingTest(config, configStorage, location)
-      .then(() => {
+    const currentRecording = recording
+    const probeGeneration = generation
+    const probeSequence = ++sequence
+    const closer = currentRecording.display.open(periodwiseTime, config.period)
+    currentRecording.pending += 1
+
+    const complete = (status: 'connected' | 'disconnected') => {
+      if (probeGeneration !== generation) {
+        return
+      }
+      if (status === 'connected') {
         closer.closeSuccess()
-
-        if (state.status !== 'connected') {
-          state.status = 'connected'
-          favicon.href = faviconConnected.href
-          document.title = config.connectedTitle
-          document.documentElement.style.backgroundColor = THEME.connected
-          document.body.style.backgroundColor = THEME.connected
-        }
-      })
-      .catch(() => {
+      } else {
         closer.closeError()
+      }
 
-        if (state.status !== 'disconnected') {
-          state.status = 'disconnected'
-          favicon.href = faviconDisconnected.href
-          document.title = config.disconnectedTitle
-          document.documentElement.style.backgroundColor = THEME.disconnected
-          document.body.style.backgroundColor = THEME.disconnected
-        }
+      if (currentRecording !== recording || probeSequence < latestAcceptedSequence) {
+        return
+      }
+      latestAcceptedSequence = probeSequence
+      if (state.status !== status) {
+        state.status = status
+        const connected = status === 'connected'
+        favicon.href = connected ? faviconConnected.href : faviconDisconnected.href
+        document.title = connected ? config.connectedTitle : config.disconnectedTitle
+        const background = connected ? THEME.connected : THEME.disconnected
+        document.documentElement.style.backgroundColor = background
+        document.body.style.backgroundColor = background
+      }
+    }
+
+    pingTest(config, configStorage, location)
+      .then(
+        () => complete('connected'),
+        () => complete('disconnected'),
+      )
+      .finally(() => {
+        currentRecording.pending -= 1
+        finalizeArchive(currentRecording)
       })
   }
 
-  const handleEndOfDay = (currentDay: Date) => {
-    imageStorage.saveImage(page.canvasLeft, currentDay)
-    console.log(`handleEndOfDay (${day(currentDay)})`)
+  const handleEndOfDay = (nextDay: Date) => {
+    const completed = recording
+    completed.canvas = completed.display.detach()
+    completed.archived = true
+    pendingArchives.add(completed)
+    displayLeft = createDisplay({ canvas: page.canvasLeft, dayName: day(nextDay) })
+    recording = {
+      display: displayLeft,
+      canvas: page.canvasLeft,
+      date: nextDay,
+      pending: 0,
+      archived: false,
+    }
+    console.log(`handleEndOfDay (${day(completed.date)})`)
     displayLeft.wipe()
-    displayLeft.setDayName(day(new Date()))
     displayLeft.drawWireframe()
+    finalizeArchive(completed)
     updateConfig(parseConfig(configStorage, location))
   }
 
@@ -120,8 +205,20 @@ function main() {
     console.info('config', config)
 
     if (config.clear) {
+      config.clear = false
       action.clear()
       urlRemoveSearchAndHashParamAndLocalStorage(location, configStorage, 'clear')
+    }
+
+    if (
+      config.period !== lastConfig.period ||
+      config.timezoneOffset !== lastConfig.timezoneOffset ||
+      config.reactivity !== lastConfig.reactivity ||
+      config.punctualityThreshold !== lastConfig.punctualityThreshold ||
+      config.targetList !== lastConfig.targetList ||
+      config.fail !== lastConfig.fail
+    ) {
+      generation += 1
     }
 
     if (
@@ -154,12 +251,33 @@ function main() {
   window.addEventListener('hashchange', () => updateConfig(parseConfig(configStorage, location)))
 
   // Backing up and restoring the canvas image
-  window.addEventListener('beforeunload', () => {
-    imageStorage.saveImage(page.canvasLeft, now())
+  window.addEventListener('beforeunload', saveHistory)
+  window.addEventListener('pagehide', saveHistory)
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') {
+      saveHistory()
+    }
   })
+  const scheduleBackup = () => {
+    setTimeout(() => {
+      saveHistory()
+      scheduleBackup()
+    }, 60_000 - (Date.now() % 60_000))
+  }
+  scheduleBackup()
   let imageDataUrl = imageStorage.loadImage(now())
   if (imageDataUrl) {
-    loadImage(imageDataUrl).then(displayLeft.restore)
+    const initialRecording = recording
+    restoringRecording = initialRecording
+    loadImage(imageDataUrl)
+      .then(initialRecording.display.restore)
+      .catch((error) => {
+        console.error(`Unable to restore history for ${day(initialRecording.date)}`, error)
+      })
+      .finally(() => {
+        restoringRecording = undefined
+        finalizeArchive(initialRecording)
+      })
   } else {
     displayLeft.wipe() // make the canvas non-transparent and grey
   }

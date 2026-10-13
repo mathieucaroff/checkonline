@@ -65,8 +65,19 @@ export let createDisplay = ({ canvas, dayName }: DisplayProp) => {
   let { ctx } = getContext2d(canvas)
   let lastTime = 0
 
-  const restore = (image: HTMLImageElement) => {
+  const restore = (image: CanvasImageSource) => {
     ctx.drawImage(image, 0, 0)
+  }
+
+  const detach = () => {
+    const archivedCanvas = document.createElement('canvas')
+    archivedCanvas.width = canvas.width
+    archivedCanvas.height = canvas.height
+    const { ctx: archivedContext } = getContext2d(archivedCanvas)
+    archivedContext.drawImage(canvas, 0, 0)
+    canvas = archivedCanvas
+    ctx = archivedContext
+    return archivedCanvas
   }
 
   const wipe = () => {
@@ -154,6 +165,7 @@ export let createDisplay = ({ canvas, dayName }: DisplayProp) => {
     open,
     wipe,
     restore,
+    detach,
     setDayName: (newName: string) => {
       dayName = newName
     },

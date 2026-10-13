@@ -33,7 +33,8 @@ export let createClock = (
       targetTime = initialTime + counter * period
     }
 
-    timeoutId = setTimeout(() => tick(counter + 1), delta)
+    let nextTime = initialTime + (counter + 1) * period
+    timeoutId = setTimeout(() => tick(counter + 1), Math.max(0, nextTime - now))
 
     callback(targetTime - offset, lastTime, skip)
     lastTime = targetTime - offset

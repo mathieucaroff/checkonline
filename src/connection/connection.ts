@@ -17,6 +17,7 @@ export let pingTest = (
     let timeout = parseTimeToMs(config.reactivity)
 
     if (config.fail) {
+      config.fail = false
       urlRemoveSearchAndHashParamAndLocalStorage(location, configStorage, 'fail')
       setTimeout(() => {
         reject('fake timeout')
