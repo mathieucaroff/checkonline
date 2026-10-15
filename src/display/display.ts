@@ -97,7 +97,6 @@ export let createDisplay = ({ canvas, dayName }: DisplayProp) => {
       fillRectList.forEach(([dx, dy, w, h]) => ctx.fillRect(x + dx, y + dy, w, h))
     }
 
-    ctx.fillStyle = THEME.open
     if ((pixelTime / 8) % 60 === 1) {
       me.drawWireframe()
     }
@@ -112,6 +111,9 @@ export let createDisplay = ({ canvas, dayName }: DisplayProp) => {
     }
 
     lastTime = targetTime
+
+    ctx.fillStyle = THEME.open
+    fillArea()
 
     return {
       closeSuccess: () => {
